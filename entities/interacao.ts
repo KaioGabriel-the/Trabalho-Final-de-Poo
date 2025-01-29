@@ -1,4 +1,4 @@
-import { TipoInteracaoEnum } from "./enums/tipoInteracaoEnum"
+import { TipoInteracaoEnum } from "../enums/tipoInteracaoEnum"
 import Perfil from "./perfil";
 import { ulid } from "ulid";
 export default class Interacao {

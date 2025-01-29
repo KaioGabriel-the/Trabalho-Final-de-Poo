@@ -74,6 +74,10 @@ export default class Perfil {
         this._status = false;
     }
 
+    public adicionarAmigo(amigo: Perfil): void {
+        this._amigos.push(amigo);
+    }
+
     public toString(): string {
         return `
         ==== PERFIL ${this._id} ====
