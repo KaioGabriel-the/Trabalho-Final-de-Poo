@@ -14,4 +14,9 @@ export default class PublicacaoAvancada extends Publicacao {
     public addInteracao(interacao: Interacao): void {
         this._interacoes.push(interacao);
     }
+
+    public exibir(): void {
+        super.exibir();
+        console.log(`Interacoes: ${this.interacoes.length}\n`)
+    }
 }

@@ -37,4 +37,13 @@ export default class Publicacao {
         this._data = data;
     }
 
+    public exibir(): void{
+        console.log(
+            `===== Publicacao ${this._id} =====\n` +
+            `Autor: ${this.perfil.apelido}\n` +
+            `Data: ${this.data.toLocaleDateString()} - ${this.data.toLocaleTimeString()}\n` +
+            `Conteudo: ${this._conteudo}`
+        );
+    }
+
 }

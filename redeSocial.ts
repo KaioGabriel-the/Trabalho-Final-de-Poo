@@ -144,4 +144,15 @@ export default class RedeSocial {
 
         publicacao.addInteracao(interacao);
     }
+
+    public exibirPublicacoesOrdenadas(perfil?: Perfil): void {
+        let pubs : Publicacao[] = this._publicacoes;
+
+        if (perfil){
+            pubs = pubs.filter(pub => pub.perfil.id === perfil.id)
+        }
+        
+        pubs.sort((a, b) => b.data.getTime() - a.data.getTime());
+        pubs.forEach(publicacao => publicacao.exibir());
+    }
 }
