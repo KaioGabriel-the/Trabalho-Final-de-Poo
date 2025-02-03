@@ -15,3 +15,9 @@ export class PerfilNaoAutorizadoError extends Error {
         super('Esse perfil não pode ativar ou desativar o status de outro perfil!')
     }
 }
+
+export class PerfilNaoEncontrado extends Error{
+    constructor(id:String){
+        super(`Perfil com id ${id} não encontrado.`);
+    }
+}

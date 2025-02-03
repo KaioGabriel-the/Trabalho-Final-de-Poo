@@ -11,6 +11,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "prompt-sync": "^4.2.0",
     "ulid": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/prompt-sync": "^4.2.3"
   }
 }

@@ -53,16 +53,25 @@ export default class RedeSocial {
         this._perfis.push(perfil);
     }
 
-    public buscarPerfilPorId(id: string): Perfil | undefined {
-        return this._perfis.find(perfil => perfil.id === id);
+    public buscarPerfilPorId(id: string): Perfil {
+        const perfilEncontrado = this._perfis.find((perfilProcurado) => perfilProcurado.id === id);
+        if (!perfilEncontrado) {
+            throw new Error(`Perfil com id ${id} não encontrado.`);
+        }
+        return perfilEncontrado;
     }
 
     public buscarPerfilPorEmail(email: string): Perfil | undefined {
         return this._perfis.find(perfil => perfil.email === email);
     }
 
-    public buscarPerfilPorApelido(apelido: string): Perfil | undefined {
-        return this._perfis.find(perfil => perfil.apelido === apelido);
+    public buscarPerfilPorApelido(apelido: string): Perfil {
+        const perfilEncontrado = this._perfis.find(perfil => perfil.apelido === apelido);
+        if(!perfilEncontrado){
+            throw new Error("Perfil não encontrado...");
+        }
+
+        return perfilEncontrado;
     }
 
     public ativarPerfil(avancado: Perfil, perfil: Perfil): void {
