@@ -1,6 +1,8 @@
 import prompt from 'prompt-sync';
 import RedeSocial from '../redeSocial';
 import Perfil from '../entities/perfil';
+import { log } from 'console';
+import PerfilAvancado from '../entities/perfilAvancado';
 
 class App{
     private _input: prompt.Prompt;
@@ -17,8 +19,9 @@ class App{
         const menuOpcoes: String = " ----- REDE SOCIAL -----" + "\n"+
         "1- Criar Perfil;\n"+
         "2- Fazer Postagem;\n"+
-        "3- Adicionar amigo;\n"+
-        "4- Solicitações\n" +
+        "3- Adicionar Amigo;\n"+
+        "4- Solicitações;\n" +
+        "5- Criar Avançado;\n" +
         "Digite a opção que deseja: ";
 
         do{
@@ -36,7 +39,11 @@ class App{
                     this.enviarSolicitacao();
                     break;    
                 case 4:
+                    this.exibirSolicitacoes();
                     break;
+                case 5:
+                    this.criarPerfilAvancado();
+                    break;    
             }
 
         }while(opcao != 0);
@@ -83,9 +90,73 @@ class App{
         console.log("Solicitação enviada com sucesso!!!");
     }
 
+    private recusarSolicitacao(receptor: Perfil): void{
+        console.log("Digite o nome do perfil que deseja aceitar a solicitação: ");
+        let nomeEmissor = String(this._input);
+        let perfilEmissor = this._redeSocial.buscarPerfilPorApelido(nomeEmissor);
+        this._redeSocial.rejeitarSolicitacao(perfilEmissor,receptor);
+        console.log("Solicitação recusada com sucesso...")
+    }
+
+    private aceitarSolocitacao(receptor: Perfil): void{
+        console.log("Digite o nome do perfil que deseja aceitar a solicitação: ");
+        let nomeEmissor = String(this._input);
+        let perfilEmissor = this._redeSocial.buscarPerfilPorApelido(nomeEmissor);
+        this._redeSocial.aceitarSolicitacao(perfilEmissor,receptor);
+        console.log("Solicitação aceita com sucesso...");
+    }
+
+    private statusDaSolicitacao(receptor: Perfil): void{
+        let menu: String = "----- Status da Solicitação ----- \n" + 
+        "--> 1 - Aceitar solicitação \n" + 
+        "--> 2 - Recusar solicitação \n" + 
+        "--> Digite sua escolha: ";
+        console.log(menu);
+        let opcao = Number(this._input);
+        switch(opcao){
+            case 1:
+                this.aceitarSolocitacao(receptor);
+                break;
+            case 2:
+                this.recusarSolicitacao(receptor);
+                break;
+        }
+    }
+
     private exibirSolicitacoes(): void{
         console.log("Qual o ID do seu perfil: ")
         let idRecptor = String(this._input);
         let receptor = this._redeSocial.buscarPerfilPorId(idRecptor);
+        
+        if(receptor){
+            let solicitacoes = this._redeSocial.solicitacoes;
+
+            if(solicitacoes.has(receptor)){
+                let listaSolicitacoes = solicitacoes.get(receptor);
+                
+                if(listaSolicitacoes && listaSolicitacoes.length > 0){
+                    console.log("--> Solicitações: ");
+                    listaSolicitacoes.forEach((perfil: Perfil)=> {console.log(perfil.toString());});
+                    this.statusDaSolicitacao(receptor);
+                }else{
+                    console.log("Não há solicitações pendentes...")
+                }
+            }else{
+                console.log("Não solicitações para esse perfil...")
+            }
+        }else{
+            console.log("Perfil não encontrado...")
+        }
+    }
+
+    private criarPerfilAvancado(): void{
+        console.log("----- Criando Perfil ----- \n" + "--> Digite o seu nome de usuario: ");
+        let nomeUsuario = String(this._input);
+        let fotoPerfil = String(this.menuEmoji());
+        console.log("--> Digite o seu email: ");
+        let emailUsuario = String(this._input);
+        let perfilAvancado = new PerfilAvancado(nomeUsuario,fotoPerfil,emailUsuario);
+        this._redeSocial.adicionarPerfil(perfilAvancado);
+        console.log("Perfil avançado criado com sucesso...");
     }
 }
