@@ -1,7 +1,6 @@
 import prompt from 'prompt-sync';
 import RedeSocial from '../redeSocial';
 import Perfil from '../entities/perfil';
-import { log } from 'console';
 import PerfilAvancado from '../entities/perfilAvancado';
 
 class App{
@@ -21,7 +20,10 @@ class App{
         "2- Fazer Postagem;\n"+
         "3- Adicionar Amigo;\n"+
         "4- Solicitações;\n" +
-        "5- Criar Avançado;\n" +
+        "5- Criar Avançado;\n" + 
+        "6- Ativar/Desativar;\n" +
+        "7- Editar publicação;\n" +
+        "8- Remover publicação;\n"+
         "Digite a opção que deseja: ";
 
         do{
@@ -43,6 +45,8 @@ class App{
                     break;
                 case 5:
                     this.criarPerfilAvancado();
+                    break;
+                case 6:
                     break;    
             }
 
