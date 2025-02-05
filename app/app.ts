@@ -16,14 +16,11 @@ class App{
         let opcao: number = -1;
 
         const menuOpcoes: String = " ----- REDE SOCIAL -----" + "\n"+
-        "1- Criar Perfil;\n"+
-        "2- Fazer Postagem;\n"+
-        "3- Adicionar Amigo;\n"+
-        "4- Solicitações;\n" +
-        "5- Criar Avançado;\n" + 
-        "6- Ativar/Desativar;\n" +
-        "7- Editar publicação;\n" +
-        "8- Remover publicação;\n"+
+        "1 - Criar Perfil;\n"+
+        "2 - Entrar em Perfil;\n"+
+        "3 - Criar Perfil Avançado;\n" +
+        "4 - Entrar em Perfil Avançado;\n"+
+        "5 - Feed;\n" +
         "Digite a opção que deseja: ";
 
         do{
@@ -35,18 +32,10 @@ class App{
                     this.criarPerfil();
                     break;
                 case 2:
-                    this.criarPublicacao();
-                    break;
+                    this.vizualizarPerfil();
+                   break;
                 case 3:
-                    this.enviarSolicitacao();
-                    break;    
-                case 4:
-                    this.exibirSolicitacoes();
-                    break;
-                case 5:
                     this.criarPerfilAvancado();
-                    break;
-                case 6:
                     break;    
             }
 
@@ -73,21 +62,61 @@ class App{
         novoPerfil.toString();
     }
 
-    private criarPublicacao(): void{
-        console.log("Digite o ID do seu perfil: ");
-        let idUsuario = String(this._input);
+    private vizualizarPerfil(): void{
+        console.log("Digite o ID do seu perfil --> ");
+        const idPerfil = String(this._input);
+        const usuario = this._redeSocial.buscarPerfilPorId(idPerfil);
+        const menu = `--> ${usuario.apelido} <---\n\n` + 
+        `--> Opções: \n` +
+        `--> 1 - Criar Publicação;\n`+ 
+        "--> 2 - Minhas Publicações;\n" +
+        "--> 3 - Editar Publicação;\n" +
+        "--> 4 - Remover Publicação;\n" +
+        `--> 5 - Adicionar Amigo;\n` +
+        "--> 6 - Amigos;\n"+
+        "--> 7 - Solicitações;\n"+
+        "--> 8 - Ativar/Desativar Perfil;\n"+
+        "--> Qual opção deseja: \n";
+
+        let opcao: Number = -1;
+        do{
+            console.log(menu);
+            opcao = Number(this._input);
+
+            switch(opcao){
+                case 1:
+                    this.criarPublicacao(usuario);
+                    break;
+                case 2:
+                    this.exibirMinhasPublicacao(usuario);
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    this.exibirAmigos(usuario);
+                    break;
+                case 7:
+                    this.exibirSolicitacoes(usuario);
+                    break;
+                case 8:
+                    break;                        
+            }
+        }while(opcao != 0);
+    }
+
+    private criarPublicacao(usuario: Perfil): void{
         console.log("--> Publicação: ");
-        let perfil = this._redeSocial.buscarPerfilPorId(idUsuario)
         let textPublicacao = String(this._input);
-        this._redeSocial.adicionarPublicacao(textPublicacao,perfil);
+        this._redeSocial.adicionarPublicacao(textPublicacao,usuario);
         console.log("Publicação feita com sucesso");
     }
 
-    private enviarSolicitacao(): void{
-        console.log("Digite o ID do seu perfil: ");
-        let idEmissor = String(prompt());
-        let emissor = this._redeSocial.buscarPerfilPorId(idEmissor);
-        console.log("Digite o nome do perfil: ");
+    private enviarSolicitacao(emissor: Perfil): void{
+        console.log("Digite o nome do perfil que está procurando: ");
         let nomerecptor = String(this._input);
         let receptor = this._redeSocial.buscarPerfilPorApelido(nomerecptor);
         this._redeSocial.enviarSolicitacao(emissor,receptor);
@@ -112,8 +141,9 @@ class App{
 
     private statusDaSolicitacao(receptor: Perfil): void{
         let menu: String = "----- Status da Solicitação ----- \n" + 
-        "--> 1 - Aceitar solicitação \n" + 
-        "--> 2 - Recusar solicitação \n" + 
+        "--> 1 - Aceitar Solicitação \n" + 
+        "--> 2 - Recusar Solicitação \n" +
+        "--> 3 - Enviar Solicitação"
         "--> Digite sua escolha: ";
         console.log(menu);
         let opcao = Number(this._input);
@@ -124,24 +154,25 @@ class App{
             case 2:
                 this.recusarSolicitacao(receptor);
                 break;
+            case 3:
+                this.enviarSolicitacao(receptor);
+                break;
+            default:
+                console.log("--> Você digitou uma opção inválida...");    
         }
     }
 
-    private exibirSolicitacoes(): void{
-        console.log("Qual o ID do seu perfil: ")
-        let idRecptor = String(this._input);
-        let receptor = this._redeSocial.buscarPerfilPorId(idRecptor);
-        
-        if(receptor){
+    private exibirSolicitacoes(usuario: Perfil): void{
+        if(usuario){
             let solicitacoes = this._redeSocial.solicitacoes;
 
-            if(solicitacoes.has(receptor)){
-                let listaSolicitacoes = solicitacoes.get(receptor);
+            if(solicitacoes.has(usuario)){
+                let listaSolicitacoes = solicitacoes.get(usuario);
                 
                 if(listaSolicitacoes && listaSolicitacoes.length > 0){
                     console.log("--> Solicitações: ");
                     listaSolicitacoes.forEach((perfil: Perfil)=> {console.log(perfil.toString());});
-                    this.statusDaSolicitacao(receptor);
+                    this.statusDaSolicitacao(usuario);
                 }else{
                     console.log("Não há solicitações pendentes...")
                 }
@@ -163,4 +194,14 @@ class App{
         this._redeSocial.adicionarPerfil(perfilAvancado);
         console.log("Perfil avançado criado com sucesso...");
     }
+
+    private exibirMinhasPublicacao(usuario: Perfil): void{
+        this._redeSocial.exibirPublicacoesOrdenadas(usuario);
+    }
+
+    private exibirAmigos(usuario: Perfil): void{
+        const amigos = usuario.amigos;
+        amigos.forEach((amigo)=> { console.log(`${amigo.toString()}\n`)});
+    }    
+     
 }
