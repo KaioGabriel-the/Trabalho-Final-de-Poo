@@ -22,12 +22,11 @@ class App{
         "2 - Entrar em Perfil;\n"+
         "3 - Criar Perfil Avançado;\n" +
         "4 - Entrar em Perfil Avançado;\n"+
-        "5 - Feed de Publicações;\n" +
-        "Digite a opção que deseja: ";
+        "5 - Feed de Publicações;\n";
 
         do{
             console.log(menuOpcoes);
-            opcao = Number(this._input);
+            opcao = Number(this._input("Digite a opção que deseja: "));
 
             switch(opcao){
                 case 1:
@@ -49,29 +48,28 @@ class App{
     }
 
     private menuEmoji(): String{
-        let menu: String = "----- Menu de emojis -----\n"+"0 - 😁 \n1 - 😉 \n2 - 😇 \n3 - 🙃 \n4 - 😷\n"+ "Escolha sua foto de perfil: \n";
+        let menu: String = "----- Menu de emojis -----\n"+"0 - 😁 \n1 - 😉 \n2 - 😇 \n3 - 🙃 \n4 - 😷\n";
         console.log(menu);
-        let emoji: number = Number(this._input);
+        let emoji: number = Number(this._input("Escolha sua foto de perfil: \n"));
         let arrayEmoji = ["😁","😉","😇","🙃","😷"];
         return arrayEmoji[emoji];
     }
 
     private criarPerfil(): void{
-        console.log("----- Criando Perfil ----- \n" + "--> Digite o seu nome de usuario: ");
-        let nomeUsuario = String(this._input);
+
+        console.log("----- Criando Perfil ----- \n");
+        let nomeUsuario = String(this._input( "--> Digite o seu nome de usuario: "));
         let fotoPerfil = String(this.menuEmoji());
-        console.log("--> Digite o seu email: ");
-        let emailUsuario = String(this._input);
+        let emailUsuario = String(this._input("--> Digite o seu email: "));
         let novoPerfil: Perfil = new Perfil(nomeUsuario,fotoPerfil,emailUsuario);
         this._redeSocial.adicionarPerfil(novoPerfil);
         console.log("Perfil criado com sucesso 🚀🚀🚀");
-        novoPerfil.toString();
+        console.log(novoPerfil.toString());
     }
 
     private vizualizarPerfil(): void{
-        console.log("Digite o ID do seu perfil --> ");
-        const idPerfil = String(this._input);
-        const usuario = this._redeSocial.buscarPerfilPorId(idPerfil);
+        const nomePerfil = String(this._input("Digite o NOME do seu perfil --> "));
+        const usuario = this._redeSocial.buscarPerfilPorApelido(nomePerfil);
         const menu = `--> ${usuario.apelido} <---\n\n` + 
         `--> Opções: \n` +
         `--> 1 - Criar Publicação;\n`+ 
@@ -81,13 +79,12 @@ class App{
         `--> 5 - Adicionar Amigo;\n` +
         "--> 6 - Amigos;\n"+
         "--> 7 - Solicitações;\n"+
-        "--> 8 - Ativar/Desativar Perfil;\n"+
-        "--> Qual opção deseja: \n";
+        "--> 8 - Ativar/Desativar Perfil;\n"
 
         let opcao: Number = -1;
         do{
             console.log(menu);
-            opcao = Number(this._input);
+            opcao = Number(this._input("--> Qual opção deseja: \n"));
 
             switch(opcao){
                 case 1:
@@ -119,31 +116,27 @@ class App{
     }
 
     private criarPublicacao(usuario: Perfil): void{
-        console.log("--> Publicação: ");
-        let textPublicacao = String(this._input);
+        let textPublicacao = String(this._input("--> Publicação: "));
         this._redeSocial.adicionarPublicacao(textPublicacao,usuario);
         console.log("Publicação feita com sucesso");
     }
 
     private enviarSolicitacao(emissor: Perfil): void{
-        console.log("Digite o nome do perfil que está procurando: ");
-        let nomerecptor = String(this._input);
+        let nomerecptor = String(this._input("Digite o nome do perfil que está procurando: "));
         let receptor = this._redeSocial.buscarPerfilPorApelido(nomerecptor);
         this._redeSocial.enviarSolicitacao(emissor,receptor);
         console.log("Solicitação enviada com sucesso!!!");
     }
 
     private recusarSolicitacao(receptor: Perfil): void{
-        console.log("Digite o nome do perfil que deseja aceitar a solicitação: ");
-        let nomeEmissor = String(this._input);
+        let nomeEmissor = String(this._input("Digite o nome do perfil que deseja aceitar a solicitação: "));
         let perfilEmissor = this._redeSocial.buscarPerfilPorApelido(nomeEmissor);
         this._redeSocial.rejeitarSolicitacao(perfilEmissor,receptor);
         console.log("Solicitação recusada com sucesso...")
     }
 
     private aceitarSolocitacao(receptor: Perfil): void{
-        console.log("Digite o nome do perfil que deseja aceitar a solicitação: ");
-        let nomeEmissor = String(this._input);
+        let nomeEmissor = String(this._input("Digite o nome do perfil que deseja aceitar a solicitação: "));
         let perfilEmissor = this._redeSocial.buscarPerfilPorApelido(nomeEmissor);
         this._redeSocial.aceitarSolicitacao(perfilEmissor,receptor);
         console.log("Solicitação aceita com sucesso...");
@@ -153,10 +146,9 @@ class App{
         let menu: String = "----- Status da Solicitação ----- \n" + 
         "--> 1 - Aceitar Solicitação \n" + 
         "--> 2 - Recusar Solicitação \n" +
-        "--> 3 - Enviar Solicitação"
-        "--> Digite sua escolha: ";
+        "--> 3 - Enviar Solicitação";
         console.log(menu);
-        let opcao = Number(this._input);
+        let opcao = Number(this._input("--> Digite sua escolha: "));
         switch(opcao){
             case 1:
                 this.aceitarSolocitacao(receptor);
@@ -195,11 +187,10 @@ class App{
     }
 
     private criarPerfilAvancado(): void{
-        console.log("----- Criando Perfil ----- \n" + "--> Digite o seu nome de usuario: ");
-        let nomeUsuario = String(this._input);
+        console.log("----- Criando Perfil ----- \n");
+        let nomeUsuario = String(this._input("--> Digite o seu nome de usuario: "));
         let fotoPerfil = String(this.menuEmoji());
-        console.log("--> Digite o seu email: ");
-        let emailUsuario = String(this._input);
+        let emailUsuario = String(this._input(("--> Digite o seu email: ")));
         let perfilAvancado = new PerfilAvancado(nomeUsuario,fotoPerfil,emailUsuario);
         this._redeSocial.adicionarPerfil(perfilAvancado);
         console.log("Perfil avançado criado com sucesso...");
@@ -215,8 +206,7 @@ class App{
     }    
     
     private editarPublicacao(usuario: Perfil): void{
-        console.log("--> Digite o ID da publicação que deseja editar");
-        let idPublicacao = String(this._input);
+        let idPublicacao = String(this._input("--> Digite o ID da publicação que deseja editar"));
         let publicacao: Publicacao | undefined = (this._redeSocial.publicacoes).find((publicacao) =>{publicacao.id === idPublicacao});
 
         try{
@@ -226,8 +216,7 @@ class App{
             }
 
             console.log("--> Publicação: \n"+ publicacao.conteudo + "\n");
-            console.log("--> Digite a nova publicação: \n");
-            let novaPublicacao = String(this._input);
+            let novaPublicacao = String(this._input("--> Digite a nova publicação: \n"));
             publicacao.conteudo = novaPublicacao;
             console.log("Publicação alterada com sucesso...");
         }catch(erro){
@@ -236,16 +225,14 @@ class App{
     }
 
     private adicionarAmigo(usuario: Perfil): void{
-        console.log("--> Digite o ID do amigo que deseja adicionar: \n");
-        let idReceptor = String(this._input);
+        let idReceptor = String(this._input("--> Digite o ID do amigo que deseja adicionar: \n"));
         let receptor = this._redeSocial.buscarPerfilPorId(idReceptor);
         this._redeSocial.enviarSolicitacao(usuario,receptor);
         console.log("Solicitação enviada com sucesso...");
     }
 
     private removerPublicacao(usuario: Perfil): void{
-        console.log("--> Digite o ID da publicação que deseja remover");
-        let idPublicacao = String(this._input);
+        let idPublicacao = String(this._input("--> Digite o ID da publicação que deseja remover"));
         let publicacao: Publicacao | undefined = (this._redeSocial.publicacoes).find((publicacao) =>{publicacao.id === idPublicacao});
 
         try{
@@ -282,7 +269,7 @@ class App{
     private statusPerfil(usuario: Perfil):void{
         let menu = "-> 1 - Ativar Perifl; \n-> 2 - Desativar Perfil;"
         console.log(menu);
-        let opcao = Number(this._input);
+        let opcao = Number(this._input("--> Digite a opção que deseja: \n"));
 
         switch(opcao){
             case 1:
@@ -300,3 +287,6 @@ class App{
         this._redeSocial.publicacoes.sort((a, b) => b.data.getTime() - a.data.getTime());
     }
 }
+
+let app: App = new App();
+app.menu();
