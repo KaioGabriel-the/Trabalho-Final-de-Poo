@@ -2,6 +2,8 @@ import prompt from 'prompt-sync';
 import RedeSocial from '../redeSocial';
 import Perfil from '../entities/perfil';
 import PerfilAvancado from '../entities/perfilAvancado';
+import Publicacao from '../entities/publicacao';
+import { PublicacaoNaoEncontradaErro } from '../exceptions/excecoesPerfil';
 
 class App{
     private _input: prompt.Prompt;
@@ -20,7 +22,7 @@ class App{
         "2 - Entrar em Perfil;\n"+
         "3 - Criar Perfil Avançado;\n" +
         "4 - Entrar em Perfil Avançado;\n"+
-        "5 - Feed;\n" +
+        "5 - Feed de Publicações;\n" +
         "Digite a opção que deseja: ";
 
         do{
@@ -36,7 +38,11 @@ class App{
                    break;
                 case 3:
                     this.criarPerfilAvancado();
-                    break;    
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;        
             }
 
         }while(opcao != 0);
@@ -91,10 +97,13 @@ class App{
                     this.exibirMinhasPublicacao(usuario);
                     break;
                 case 3:
+                    this.editarPublicacao(usuario);
                     break;
                 case 4:
+                    this.removerPublicacao(usuario);
                     break;
                 case 5:
+                    this.adicionarAmigo(usuario);
                     break;
                 case 6:
                     this.exibirAmigos(usuario);
@@ -103,6 +112,7 @@ class App{
                     this.exibirSolicitacoes(usuario);
                     break;
                 case 8:
+                    this.statusPerfil(usuario);
                     break;                        
             }
         }while(opcao != 0);
@@ -203,5 +213,90 @@ class App{
         const amigos = usuario.amigos;
         amigos.forEach((amigo)=> { console.log(`${amigo.toString()}\n`)});
     }    
-     
+    
+    private editarPublicacao(usuario: Perfil): void{
+        console.log("--> Digite o ID da publicação que deseja editar");
+        let idPublicacao = String(this._input);
+        let publicacao: Publicacao | undefined = (this._redeSocial.publicacoes).find((publicacao) =>{publicacao.id === idPublicacao});
+
+        try{
+
+            if(publicacao === undefined){
+                throw new PublicacaoNaoEncontradaErro();
+            }
+
+            console.log("--> Publicação: \n"+ publicacao.conteudo + "\n");
+            console.log("--> Digite a nova publicação: \n");
+            let novaPublicacao = String(this._input);
+            publicacao.conteudo = novaPublicacao;
+            console.log("Publicação alterada com sucesso...");
+        }catch(erro){
+            console.log(erro);
+        }
+    }
+
+    private adicionarAmigo(usuario: Perfil): void{
+        console.log("--> Digite o ID do amigo que deseja adicionar: \n");
+        let idReceptor = String(this._input);
+        let receptor = this._redeSocial.buscarPerfilPorId(idReceptor);
+        this._redeSocial.enviarSolicitacao(usuario,receptor);
+        console.log("Solicitação enviada com sucesso...");
+    }
+
+    private removerPublicacao(usuario: Perfil): void{
+        console.log("--> Digite o ID da publicação que deseja remover");
+        let idPublicacao = String(this._input);
+        let publicacao: Publicacao | undefined = (this._redeSocial.publicacoes).find((publicacao) =>{publicacao.id === idPublicacao});
+
+        try{
+
+            if(publicacao === undefined){
+                throw new PublicacaoNaoEncontradaErro();
+            }
+            let publicacaoProcurada = this._redeSocial.publicacoes.findIndex((publicacaoProcurada)=> publicacaoProcurada.id == publicacao.id);
+            this._redeSocial.publicacoes.splice(publicacaoProcurada,1);
+            console.log("Publicação removida com sucesso...");
+        }catch(erro){
+            console.log(erro);
+        }
+    }
+
+    private desativarPerfil(usuario: Perfil): void{
+        if(usuario.status){
+            usuario.ativar();
+            console.log("Perfil desativado...");
+        }else{
+            console.log("Perfil já está desativado, não pode desativá-lo");
+        }
+    }
+
+    private ativarPerfil(usuario: Perfil): void{
+        if(!usuario.status){
+            usuario.ativar();
+            console.log("Perfil ativado...");
+        }else{
+            console.log("Perfil já está ativado, não pode ativá-lo");
+        }
+    }
+
+    private statusPerfil(usuario: Perfil):void{
+        let menu = "-> 1 - Ativar Perifl; \n-> 2 - Desativar Perfil;"
+        console.log(menu);
+        let opcao = Number(this._input);
+
+        switch(opcao){
+            case 1:
+               this.ativarPerfil(usuario);
+               break;
+            case 2:
+                this.desativarPerfil(usuario);
+                break;
+            default:
+                console.log("Opção inválida...");
+        }
+    }
+
+    private exibirFeed(): void{
+        this._redeSocial.publicacoes.sort((a, b) => b.data.getTime() - a.data.getTime());
+    }
 }

@@ -21,3 +21,9 @@ export class PerfilNaoEncontrado extends Error{
         super(`Perfil com id ${id} não encontrado.`);
     }
 }
+
+export class PublicacaoNaoEncontradaErro extends Error{
+    constructor(){
+        super('Essa publicação não existe no seu perfil')
+    }
+}
