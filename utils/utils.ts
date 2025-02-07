@@ -7,5 +7,5 @@ export function cls(): void {
 }
 
 export function enter(): void {
-    prompt("Pressione Enter para continuar...");
+    prompt("\nPressione Enter para continuar...");
 }
