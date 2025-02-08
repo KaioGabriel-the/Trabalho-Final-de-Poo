@@ -6,6 +6,7 @@ import Publicacao from "../entities/publicacao";
 import { cls, enter } from "../utils/utils";
 import AppError from "../exceptions/appExcecao";
 import { PublicacaoNaoEncontradaError } from "../exceptions/excecoesPublicacao";
+import { CarregadorDeDados } from "../utils/carregadorDeDados";
 
 class App {
     private _input: prompt.Prompt;
@@ -14,6 +15,7 @@ class App {
     constructor() {
         this._input = prompt();
         this._redeSocial = new RedeSocial();
+        this._redeSocial.carregarPropriedades(CarregadorDeDados.carregarDados());
     }
 
     public menu(): void {
@@ -26,9 +28,10 @@ class App {
             "2 - Entrar em Perfil\n" +
             "3 - Criar Perfil Avançado\n" +
             "4 - Entrar em Perfil Avançado\n" +
-            "5 - Feed de Publicações;\n";
-        try {    
-            do {
+            "5 - Feed de Publicações\n";
+           
+        do {
+            try { 
                 console.log(menuOpcoes);
                 opcao = Number(this._input("Digite a opção que deseja: "));
                 cls();
@@ -49,17 +52,22 @@ class App {
                         this.exibirFeed();
                         break;
                 }
-            } while (opcao != 0);
+            } catch (error) {
+                if (error instanceof AppError) {
+                    console.log("Erro! " + error.message);
+                    enter();
+                    cls();
+                }
+                
+                else {
+                    console.log("Erro inesperado! Contate o suporte.");
+                    enter();
+                    cls();
+                }
+            }
+        } while (opcao != 0);
 
-        } catch (error) {
-            if (error instanceof AppError) {
-                console.log("Erro! " + error.message);
-            }
-            
-            else {
-                console.log("Erro inesperado! Contate o suporte.");
-            }
-        }
+        
     }
 
     private menuEmoji(): string {
@@ -67,7 +75,7 @@ class App {
             "----- Menu de emojis -----\n" +
             "0 - 😁 \n1 - 😉 \n2 - 😇 \n3 - 🙃 \n4 - 😷\n";
         console.log(menu);
-        let emoji = Number(this._input("Escolha sua foto de perfil: "));
+        let emoji = Number(this._input("--> Escolha sua foto de perfil: "));
         let arrayEmoji = ["😁", "😉", "😇", "🙃", "😷"];
         return arrayEmoji[emoji];
     }
@@ -77,16 +85,8 @@ class App {
 
         let nomeUsuario = this._input("--> Digite o seu nome de usuario: ");
         this._redeSocial.verificarNovoCadastro(nomeUsuario);
-        enter();
-        cls();
-
         let fotoPerfil = this.menuEmoji();
-        enter();
-        cls();
-
         let emailUsuario = this._input("--> Digite o seu email: ");
-        enter();
-        cls();
         let novoPerfil: Perfil = new Perfil(
             nomeUsuario,
             fotoPerfil,
@@ -95,6 +95,7 @@ class App {
 
         this._redeSocial.adicionarPerfil(novoPerfil);
 
+        cls();
         console.log("Perfil criado com sucesso 🚀🚀🚀");
         console.log(novoPerfil.toString());
 
@@ -109,15 +110,15 @@ class App {
         const menu =
             `--> ${usuario.apelido} <---\n\n` +
             `--> Opções: \n` +
-            `--> 1 - Criar Publicação;\n` +
-            "--> 2 - Minhas Publicações;\n" +
-            "--> 3 - Editar Publicação;\n" +
-            "--> 4 - Remover Publicação;\n" +
-            `--> 5 - Adicionar Amigo;\n` +
-            "--> 6 - Amigos;\n" +
-            "--> 7 - Solicitações;\n" +
-            "--> 8 - Ativar/Desativar Perfil;\n" +
-            "--> 0 - Voltar";
+            `--> 1 - Criar Publicação\n` +
+            "--> 2 - Minhas Publicações\n" +
+            "--> 3 - Editar Publicação\n" +
+            "--> 4 - Remover Publicação\n" +
+            `--> 5 - Adicionar Amigo\n` +
+            "--> 6 - Amigos\n" +
+            "--> 7 - Solicitações\n" +
+            "--> 8 - Ativar/Desativar Perfil\n" +
+            "--> 0 - Voltar\n";
 
         let opcao: Number = -1;
         do {
@@ -260,6 +261,14 @@ class App {
 
 
     private exibirMinhasPublicacoes(usuario: Perfil): void {
+        
+        if (this._redeSocial.publicacoes.filter(publicacao => publicacao.perfil == usuario).length == 0) {
+            console.log("Nenhuma publicação sua encontrada...");
+            enter();
+            cls();
+            return;
+        }
+        
         this._redeSocial.exibirPublicacoesOrdenadas(usuario);
         enter();
         cls();
@@ -267,6 +276,14 @@ class App {
 
     private exibirAmigos(usuario: Perfil): void {
         const amigos = usuario.amigos;
+
+        if (amigos.length == 0) {
+            console.log("Este perfil ainda não possui amigos, mas não fique triste, que tal adicionar alguns? 😁");
+            enter();
+            cls();
+            return;
+        }
+
         amigos.forEach((amigo) => {
             console.log(`${amigo.toString()}\n`);
         });
@@ -275,14 +292,15 @@ class App {
     }
 
     private editarPublicacao(usuario: Perfil): void {
+
+        if (this._redeSocial.publicacoes.filter(publicacao => publicacao.perfil == usuario).length == 0) {
+            console.log("Nenhuma publicação sua encontrada...");
+        }
+
         let idPublicacao = this._input("--> Digite o ID da publicação que deseja editar: ");
-        enter();
         cls();
 
-        let publicacao: Publicacao | undefined =
-            this._redeSocial.publicacoes.find((publicacao) => {
-                publicacao.id === idPublicacao;
-            });
+        let publicacao: Publicacao = this._redeSocial.buscarPublicacaoDeUmUsuarioPorId(idPublicacao, usuario);
 
         try {
             if (publicacao === undefined) {
@@ -300,7 +318,9 @@ class App {
             cls();
 
         } catch (erro) {
-            console.error(erro);
+            if (erro instanceof AppError) {
+                console.log(erro.message);
+            }
         }
     }
 
@@ -314,7 +334,7 @@ class App {
 
     private removerPublicacao(usuario: Perfil): void {
         let idPublicacao = this._input("--> Digite o ID da publicação que deseja remover");
-        let publicacao: Publicacao = this._redeSocial.buscarPublicacaoPorId(idPublicacao);
+        let publicacao: Publicacao = this._redeSocial.buscarPublicacaoDeUmUsuarioPorId(idPublicacao, usuario);
 
         let publicacaoProcurada = this._redeSocial.publicacoes.findIndex(
             (publicacaoProcurada) => publicacaoProcurada.id == publicacao.id
@@ -500,3 +520,4 @@ class App {
 
 let app: App = new App();
 app.menu();
+

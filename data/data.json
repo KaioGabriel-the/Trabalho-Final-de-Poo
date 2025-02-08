@@ -44,7 +44,17 @@
     "friendRequests": [
         {
             "receiverId": "2",
-            "senderId": "1"
+            "senderIds": [
+                "1"
+            ]
+        }
+    ],
+    "friendships": [
+        {
+            "userId": "1",
+            "friendIds": [
+                "2"
+            ]
         }
     ]
 }

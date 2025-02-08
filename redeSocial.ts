@@ -27,6 +27,12 @@ export default class RedeSocial {
         return this._solicitacoes;
     }
 
+    public carregarPropriedades(props: any): void {
+        this._perfis = props.perfis;
+        this._publicacoes = props.publicacoes;
+        this._solicitacoes = props.solicitacoes;
+    }
+
     public adicionarPerfil(perfil: Perfil): void {
         this._perfis.push(perfil);
     }
@@ -86,11 +92,11 @@ export default class RedeSocial {
         this._publicacoes.push(publicacao);
     }
 
-    public buscarPublicacaoPorId(id: string): Publicacao {
-        const publicacaoEncontrada = this._publicacoes.find((publicacaoProcurada) => publicacaoProcurada.id === id);
-        
+    public buscarPublicacaoDeUmUsuarioPorId(id: string, perfil: Perfil): Publicacao {
+        const publicacaoEncontrada = this._publicacoes.find((publicacaoProcurada) => publicacaoProcurada.id === id && publicacaoProcurada.perfil === perfil);
+
         if (!publicacaoEncontrada) {
-            throw new PublicacaoNaoEncontradaError(`Publicação com id ${id} não encontrada.`);
+            throw new PublicacaoNaoEncontradaError(`Publicação com id ${id} não encontrada para esse perfil.`);
         }
 
         return publicacaoEncontrada;

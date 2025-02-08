@@ -1,2 +1,3 @@
 build/
 diffs.txt
+node_modules/

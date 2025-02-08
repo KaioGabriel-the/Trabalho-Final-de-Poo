@@ -22,7 +22,7 @@ export default class Perfil {
     private _status: boolean;
     private _amigos!: Perfil[];
 
-    constructor(_apelido: string, _foto: string, _email: string, id?: string) {
+    constructor(_apelido: string, _foto: string, _email: string, id?: string, status?: boolean) {
         
         if (id) {
             this._id = id;  
@@ -30,10 +30,16 @@ export default class Perfil {
             this._id = ulid().toString(); 
         }
 
+        if (status) {
+            this._status = status;
+        } else {
+            this._status = true;
+        }
+
         this._apelido = _apelido;
         this._foto = _foto;
         this._email = _email;
-        this._status = true;
+        this._amigos = [];
     }
 
     public get id(): string {
@@ -90,7 +96,7 @@ export default class Perfil {
         Apelido: ${this._apelido}
         Foto: ${this._foto}
         Email: ${this._email}
-        Status: ${this._status}
+        Status: ${this._status ? "Ativo" : "Inativo"}
         =======================
         `
     }

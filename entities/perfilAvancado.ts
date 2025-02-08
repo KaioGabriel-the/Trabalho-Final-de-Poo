@@ -2,8 +2,8 @@ import Perfil from "./perfil";
 
 export default class PerfilAvancado extends Perfil {
 
-    constructor(_apelido: string, _foto: string, _email: string, _id?: string) {
-        super(_apelido, _foto, _email, _id);
+    constructor(_apelido: string, _foto: string, _email: string, _id?: string, _status?: boolean) {
+        super(_apelido, _foto, _email, _id, _status);
     }
     
     public habilitarPerfil(perfil: Perfil): void {

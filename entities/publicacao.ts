@@ -6,7 +6,7 @@ export default class Publicacao {
     private _data: Date;
     private _perfil: Perfil;
 
-    constructor(conteudo: string, perfil: Perfil, id?: string) {
+    constructor(conteudo: string, perfil: Perfil, id?: string, data?: Date) {
         
         if (id) {
             this._id = id;  
@@ -14,8 +14,13 @@ export default class Publicacao {
             this._id = ulid().toString(); 
         }
 
+        if (data){
+            this._data = data;
+        } else {
+            this._data = new Date();
+        }
+
         this._conteudo = conteudo;
-        this._data = new Date();
         this._perfil = perfil;
     }
 

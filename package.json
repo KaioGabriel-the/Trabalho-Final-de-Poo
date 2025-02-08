@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "load": "tsc && node ./build/utils/carregadorDeDados.js",
     "dev": "tsc && node ./build/app/app.js"
   },
   "keywords": [],
@@ -15,6 +16,7 @@
     "ulid": "^2.3.0"
   },
   "devDependencies": {
+    "@types/node": "^22.13.1",
     "@types/prompt-sync": "^4.2.3"
   }
 }
