@@ -46,7 +46,7 @@ class App {
                     case 2:
                         this.visualizarPerfil();
                         break;
-                    case 5:
+                    case 3:
                         this.exibirFeed();
                         break;
                 }
@@ -268,6 +268,7 @@ class App {
 
         if (this._redeSocial.publicacoes.filter(publicacao => publicacao.perfil == usuario).length == 0) {
             console.log("Nenhuma publicação sua encontrada...");
+            this.visualizarPerfil();
         }
 
         let idPublicacao = this._input("--> Digite o ID da publicação que deseja editar: ");
@@ -362,52 +363,43 @@ class App {
         }
     }
 
-    // TODO: Refatorar para que as publicações sejam exibidas de uma forma mais eficaz
-    // É ruim que o usuario tenha que digitar a cada feed que queira ver.
-    // Testar método
     private exibirFeed(): void {
+        // Ordena as publicações pela data (mais recentes primeiro)
         let publicacoesAux = this._redeSocial.publicacoes.sort(
             (a, b) => b.data.getTime() - a.data.getTime()
         );
-
-        if (publicacoesAux.length <= 0) {
+    
+        if (publicacoesAux.length === 0) {
             console.log("Não existem publicações...");
             enter();
             cls();
             return;
         }
-
-        let flag = true;
-        let indice = 0;
-
-        while (flag && indice < publicacoesAux.length) {
-            for (let i = 0; i <  10 && indice < publicacoesAux.length; i++) {
-                publicacoesAux[indice].exibir();
-                console.log("\n");
-                let opcaoInteracao = String(this._input("Você desaja interagir com alguma publicação(S/N): "));
-            if (opcaoInteracao.toLocaleLowerCase() === "s") {
-                this.interagirPublicacao(publicacoesAux[indice]);
-            }
-                indice++;
-            }
-
-            let opcao = this._input("--> Deseja continuar(S/N): ");
-            enter();
-            cls();
-            if (opcao.toLocaleLowerCase() === "s") {
-                flag = true;
-            } else {
-                flag = false;
-            }
+    
+        console.log("----- FEED DE PUBLICAÇÕES -----\n");
+        publicacoesAux.forEach((publicacao, index) => {
+            console.log(`(${index + 1})`);
+            publicacao.exibir();
+            console.log("\n");
+        });
+    
+        // Solicita que o usuário escolha uma publicação para interagir
+        let opcaoInteracao = parseInt(this._input("Digite o número da publicação que deseja interagir (ou 0 para sair): "));
+    
+        if (isNaN(opcaoInteracao)) {
+            console.log("Entrada inválida! Por favor, insira um número.");
+        } else if (opcaoInteracao === 0) {
+            console.log("Nenhuma interação selecionada.");
+        } else if (opcaoInteracao > 0 && opcaoInteracao <= publicacoesAux.length) {
+            this.interagirPublicacao(publicacoesAux[opcaoInteracao - 1]);
+        } else {
+            console.log("Número inválido. Por favor, escolha um número entre 1 e " + publicacoesAux.length);
         }
-
-        if (indice >= publicacoesAux.length) {
-            console.log("Não existem mais publicações...");
-            enter();
-            cls();
-        }
+    
+        enter();
+        cls();
     }
-
+    
     private emoji(opcao: number): TipoInteracaoEnum {
         switch (opcao) {
             case 1:
@@ -423,14 +415,14 @@ class App {
         }
     }
 
-    // Esse método precisa ser testado
     private interagirPublicacao(publicacao: Publicacao): void {
         if(!(publicacao instanceof PublicacaoAvancada)){
             console.log("Essa publicação não é avançada, não tem como interagir...");
             return;
         }
 
-        let menuInteracao = "--> 1 - 👍 \n--> 2 - 👎 \n--> 3 - 😯 \n--> 4 - 😂 \n";
+        let menuInteracao = "Escolha um emoji para reagir com a publicação:\n--> 1 - 👍 \n--> 2 - 👎 \n--> 3 - 😯 \n--> 4 - 😂 \n";
+        console.log(menuInteracao);
         let opcao = Number(this._input("Escolha opção: "));
         let tipoInteracao = this.emoji(opcao);
         let perfil = this._redeSocial.buscarPerfilPorId(publicacao.perfil.id);
