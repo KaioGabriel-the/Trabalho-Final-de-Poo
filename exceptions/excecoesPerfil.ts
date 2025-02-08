@@ -4,26 +4,19 @@
 //     o Perfis  normais  tentando  ativar/desativar  status  de  outro  perfil  devem  lançar  a  exceção 
 //     PerfilNaoAutorizadoError. 
 
-export class PerfilJaCadastradoError extends Error {
+import AppError from "./appExcecao";
+
+export class PerfilJaCadastradoError extends AppError {
     constructor() {
         super('O perfil que você está tentando cadastrar já existe!');
     }
 }
 
-export class PerfilNaoAutorizadoError extends Error {
+export class PerfilNaoAutorizadoError extends AppError {
     constructor(){
         super('Esse perfil não pode ativar ou desativar o status de outro perfil!')
     }
 }
 
-export class PerfilNaoEncontrado extends Error{
-    constructor(id:String){
-        super(`Perfil com id ${id} não encontrado.`);
-    }
-}
-
-export class PublicacaoNaoEncontradaErro extends Error{
-    constructor(){
-        super('Essa publicação não existe no seu perfil')
-    }
+export class PerfilNaoEncontradoError extends AppError{
 }

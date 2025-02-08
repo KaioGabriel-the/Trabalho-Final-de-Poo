@@ -3,6 +3,8 @@ import Perfil from "./entities/perfil";
 import PerfilAvancado from "./entities/perfilAvancado";
 import Publicacao from "./entities/publicacao";
 import PublicacaoAvancada from "./entities/publicacaoAvancada";
+import { SolicitacaoInvalidaError, SolicitacaoNaoEncontradaError } from "./exceptions/excecoesAmizade";
+import { PerfilNaoAutorizadoError, PerfilNaoEncontradoError } from "./exceptions/excecoesPerfil";
 
 /*2) Implementação da Classe RedeSocial (2,0 pontos) 
  
@@ -56,34 +58,50 @@ export default class RedeSocial {
     public buscarPerfilPorId(id: string): Perfil {
         const perfilEncontrado = this._perfis.find((perfilProcurado) => perfilProcurado.id === id);
         if (!perfilEncontrado) {
-            throw new Error(`Perfil com id ${id} não encontrado.`);
+            throw new PerfilNaoEncontradoError(`Perfil com id ${id} não encontrado.`);
         }
+
         return perfilEncontrado;
     }
 
     public buscarPerfilPorEmail(email: string): Perfil | undefined {
-        return this._perfis.find(perfil => perfil.email === email);
+        const perfilEncontrado = this._perfis.find(perfil => perfil.email === email);
+        if (!perfilEncontrado) {
+            throw new PerfilNaoEncontradoError(`Perfil com email ${email} não encontrado...`);  
+        }
+
+        return perfilEncontrado;
     }
 
     public buscarPerfilPorApelido(apelido: string): Perfil {
         const perfilEncontrado = this._perfis.find(perfil => perfil.apelido === apelido);
         if(!perfilEncontrado){
-            throw new Error("Perfil não encontrado...");
+            throw new PerfilNaoEncontradoError(`Perfil com apelido ${apelido} não encontrado...`);
         }
 
         return perfilEncontrado;
     }
 
-    public ativarPerfil(avancado: Perfil, perfil: Perfil): void {
-        if (avancado instanceof PerfilAvancado) {
-            avancado.habilitarPerfil(perfil);
+    public ativarPerfil(ativadorId: string, perfilId: string ): void {
+        const ativador: Perfil = this.buscarPerfilPorId(ativadorId);
+        const perfil: Perfil = this.buscarPerfilPorId(perfilId);
+
+        if (!(ativador instanceof PerfilAvancado)) {
+            throw new PerfilNaoAutorizadoError;
         }
+
+        ativador.habilitarPerfil(perfil);
     }
 
-    public desativarPerfil(avancado: Perfil, perfil: Perfil): void {
-        if (avancado instanceof PerfilAvancado) {
-            avancado.desabilitarPerfil(perfil);
+    public desativarPerfil(ativadorId: string, perfilId: string): void {
+        const ativador: Perfil = this.buscarPerfilPorId(ativadorId);
+        const perfil: Perfil = this.buscarPerfilPorId(perfilId);
+
+        if (!(ativador instanceof PerfilAvancado)) {
+            throw new PerfilNaoAutorizadoError;
         }
+
+        ativador.habilitarPerfil(perfil);
     }
 
 
@@ -92,7 +110,10 @@ export default class RedeSocial {
         this._publicacoes.push(publicacao);
     }
     
-    public enviarSolicitacao(emissor: Perfil, receptor: Perfil): void {
+    public enviarSolicitacao(apelidoEmissor: string, apelidoReceptor: string): void {
+        const emissor = this.buscarPerfilPorApelido(apelidoEmissor);
+        const receptor = this.buscarPerfilPorApelido(apelidoReceptor);
+
         if (!this._solicitacoes.has(receptor)) {
             this._solicitacoes.set(receptor, []);
         }
@@ -100,20 +121,26 @@ export default class RedeSocial {
         this._solicitacoes.get(receptor)!.push(emissor);
     }
 
+    // Retorna true se existir uma solicitação para o receptor
     private existeSolicitacaoReceptor(receptor: Perfil): boolean {
         return this._solicitacoes.has(receptor);
     }
 
+    // Retorna true se, para um receptor, o emissor ja enviou uma solicitação
     private existeSolicitacaoEmissor(solicitacoes: Perfil[], emissor: Perfil): boolean {
         return solicitacoes.find(em => em.id === emissor.id) !== undefined;
     }
 
     public removerSolicitacao(emissor: Perfil, receptor: Perfil): void {
+        // Busca a solicitação e remove o emissor da lista de solicitantes
         const solicitacoesAtlz = this._solicitacoes.get(receptor)!.filter(em => em.id !== emissor.id);
-        this._solicitacoes.set(receptor, solicitacoesAtlz);
+        this._solicitacoes.set(receptor, solicitacoesAtlz); // Atualiza a lista para um receptor
     }
 
-    public aceitarSolicitacao(emissor: Perfil, receptor: Perfil): void {
+
+    public aceitarSolicitacao(apelidoEmissor: string, apelidoReceptor: string): void {
+        const emissor: Perfil = this.buscarPerfilPorApelido(apelidoEmissor);
+        const receptor: Perfil = this.buscarPerfilPorApelido(apelidoReceptor);
         if (this.existeSolicitacaoReceptor(receptor) === false) {
             throw new Error("Nenhuma solicitação encontrada para este receptor!");
         }
@@ -125,13 +152,17 @@ export default class RedeSocial {
         emissor.adicionarAmigo(receptor);
     }
 
-    public rejeitarSolicitacao(emissor: Perfil, receptor: Perfil): void {
+    public rejeitarSolicitacao(apelidoEmissor: string, apelidoReceptor: string): void {
+
+        const emissor: Perfil = this.buscarPerfilPorApelido(apelidoEmissor);
+        const receptor: Perfil = this.buscarPerfilPorApelido(apelidoReceptor);
+
         if (!this.existeSolicitacaoReceptor(receptor)) {
-            throw new Error("Nenhuma solicitação encontrada!");
+            throw new SolicitacaoNaoEncontradaError("Nenhuma solicitação encontrada para esse receptor!");
         }
     
         if (!this.existeSolicitacaoEmissor(this._solicitacoes.get(receptor)!, emissor)) {
-            throw new Error("Solicitação inválida!");
+            throw new SolicitacaoInvalidaError("Solicitação inválida!");
         }
 
         this.removerSolicitacao(emissor, receptor);
@@ -148,7 +179,7 @@ export default class RedeSocial {
         }
 
         if (this.existeInteracao(perfil, publicacao)) {
-            throw new Error("Interação já existente!");
+            throw new Error("Interação já existe para esse usuário!");
         }
 
         publicacao.addInteracao(interacao);

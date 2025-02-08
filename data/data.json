@@ -1,0 +1,26 @@
+{
+    "users": [
+        {   
+            "type": "NORMAL",
+            "id": "1",
+            "username": "John Doe",
+            "photo": "😭",
+            "email": "johndoe@me.com",
+            "status": true
+
+        },
+        {
+            "type": "ADVANCED",
+            "id": "2",
+            "username": "Jane Doe",
+            "photo": "😭",
+            "email": "janedoe@me.com",
+            "status": true
+        }
+    ],
+    "publications": [
+        {
+
+        },
+    ]
+}

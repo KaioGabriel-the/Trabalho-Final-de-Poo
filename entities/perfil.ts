@@ -22,8 +22,14 @@ export default class Perfil {
     private _status: boolean;
     private _amigos!: Perfil[];
 
-    constructor(_apelido: string, _foto: string, _email: string) {
-        this._id = ulid().toString();
+    constructor(_apelido: string, _foto: string, _email: string, id?: string) {
+        
+        if (id) {
+            this._id = id;  
+        } else {
+            this._id = ulid().toString(); 
+        }
+
         this._apelido = _apelido;
         this._foto = _foto;
         this._email = _email;

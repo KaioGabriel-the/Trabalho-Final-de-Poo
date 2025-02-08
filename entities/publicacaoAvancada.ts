@@ -4,8 +4,8 @@ import Publicacao from "./publicacao";
 export default class PublicacaoAvancada extends Publicacao {
     private _interacoes: Interacao[] = [];
 
-    constructor(conteudo: string, perfil: Perfil) {
-        super(conteudo, perfil);
+    constructor(conteudo: string, perfil: Perfil, id? :string) {
+        super(conteudo, perfil, id);
     }
     public get interacoes(): Interacao[] {
         return this._interacoes;

@@ -6,8 +6,14 @@ export default class Publicacao {
     private _data: Date;
     private _perfil: Perfil;
 
-    constructor(conteudo: string, perfil: Perfil) {
-        this._id = ulid().toString();
+    constructor(conteudo: string, perfil: Perfil, id?: string) {
+        
+        if (id) {
+            this._id = id;  
+        } else {
+            this._id = ulid().toString(); 
+        }
+
         this._conteudo = conteudo;
         this._data = new Date();
         this._perfil = perfil;
