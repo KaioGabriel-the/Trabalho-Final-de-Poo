@@ -10,6 +10,7 @@ import { CarregadorDeDados } from "../utils/carregadorDeDados";
 import PublicacaoAvancada from "../entities/publicacaoAvancada";
 import Interacao from "../entities/interacao";
 import { TipoInteracaoEnum } from "../enums/tipoInteracaoEnum";
+import SalvadorDeDados from "../utils/salvadorDeDados";
 
 class App {
     private _input: prompt.Prompt;
@@ -19,6 +20,7 @@ class App {
         this._input = prompt();
         this._redeSocial = new RedeSocial();
         this._redeSocial.carregarPropriedades(CarregadorDeDados.carregarDados());
+        SalvadorDeDados.salvarDados(this._redeSocial);
     }
 
     public menu(): void {
@@ -77,19 +79,22 @@ class App {
     // Perfil comum e avançado são criados no mesmo método
     private criarPerfil(): void {
         console.log("----- Criando Perfil ----- \n");
-        console.log("--> 0 - Perfil comum; \n--> 1 - Perfil Avançado \n")
+        console.log("--> 0 - Perfil comum; \n--> 1 - Perfil Avançado \n");
+
         let tipoPefil = Number(this._input("Qual o tipo: "))
-        enter(); cls();
+
         let nomeUsuario = this._input("--> Digite o seu nome de usuario: ");
         this._redeSocial.verificarNovoCadastro(nomeUsuario);
         let fotoPerfil = this.menuEmoji();
         let emailUsuario = this._input("--> Digite o seu email: ");
+
         let novoPerfil = tipoPefil === 1 ? new PerfilAvancado (nomeUsuario,fotoPerfil,emailUsuario) : new Perfil (nomeUsuario,fotoPerfil,emailUsuario);
         this._redeSocial.adicionarPerfil(novoPerfil);
-        enter(); cls();
+        
         console.log("Perfil criado com sucesso 🚀🚀🚀");
         console.log(novoPerfil.toString());
-        enter(); cls();
+        enter(); 
+        cls();
     }
 
     // TODO: Adicionar funcionalidade para perfil avancado 

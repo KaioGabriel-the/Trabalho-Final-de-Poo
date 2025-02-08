@@ -1,28 +1,33 @@
 {
     "users": [
-        {
+        {   
             "type": "NORMAL",
             "id": "1",
             "username": "John Doe",
-            "email": "johndoe@me.com"
+            "photo": "😭",
+            "email": "johndoe@me.com",
+            "status": true
+
         },
         {
             "type": "ADVANCED",
             "id": "2",
             "username": "Jane Doe",
-            "email": "janedoe@me.com"
+            "photo": "😭",
+            "email": "janedoe@me.com",
+            "status": true
         }
     ],
     "publications": [
-        {
-            "type": "NORMAL",
+        {   
+            "type":"NORMAL",
             "id": "1",
             "content": "Eu sou uma cebola quando choro por você",
             "timestamp": "2022-08-01T00:00:00.000Z",
             "userId": "1"
         },
         {
-            "type": "ADVANCED",
+            "type":"ADVANCED",
             "id": "2",
             "content": "Eu era uma cenoura quando você me dava sopa",
             "timestamp": "2022-08-01T00:03:00.000Z",

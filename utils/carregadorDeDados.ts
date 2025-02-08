@@ -8,6 +8,7 @@ import Interacao from "../entities/interacao";
 
 export class CarregadorDeDados {
 
+    // Carrega todos os dados do json
     public static carregarDados(): object {
         const data = fs.readFileSync(path.join(__dirname, "../../data/data.json"), "utf-8");
         const json: object = JSON.parse(data);
@@ -17,22 +18,10 @@ export class CarregadorDeDados {
         this.carregarAmizades(json, perfis);
         const solicitacoes: Map<Perfil, Perfil[]> = this.carregarSolicitacoes(json, perfis);
 
-        // solicitacoes.forEach((solicitacao, receptor) => {
-        //     console.log(`Receptor: ${receptor.apelido}`);
-        //     solicitacao.forEach(emissor => console.log(`- ${emissor.apelido}`));
-        // })
-        // perfis.forEach(perfil => console.log(perfil.toString()));
-        // perfis.forEach(perfil => console.log(perfil.amigos.length));
-        // publicacoes.forEach(pub => {
-        //     pub.exibir();
-        //     if (pub instanceof PublicacaoAvancada) {
-        //         pub.interacoes.forEach((interacao: Interacao) => console.log(interacao.perfil.toString()));
-        //     }
-        // });
-
         return { perfis, publicacoes, solicitacoes };
     }
 
+    // Mapeia os perfis a partir de um json
     public static carregarPerfis(json: any): Perfil[] {
         return json.users.map((user: any) => {
             let perfil: Perfil;
@@ -43,10 +32,12 @@ export class CarregadorDeDados {
                 perfil = new PerfilAvancado(user.username, user.photo, user.email, user.id, user.status);
             }
 
-            return perfil
+            return perfil;
         });
     }
 
+
+    // Mapeia as publicacoes (se for avançada, também traz as interações) a partir de um json
     public static carregarPublicacoes(json: any, perfis: Perfil[]): Publicacao[] {
         return json.publications.map((pub: any) => {
             let publicacao: Publicacao;
@@ -61,7 +52,7 @@ export class CarregadorDeDados {
                 pub.interactions.forEach((interacaoJson: any) => {
                     const perfilInteracao: Perfil = perfis.find((perfil: Perfil) => perfil.id === interacaoJson.userId)!;
 
-                    const novaInteracao = new Interacao(perfilInteracao, interacaoJson.type, interacaoJson.userId);
+                    const novaInteracao = new Interacao(perfilInteracao, interacaoJson.type, interacaoJson.id);
                     (publicacao as PublicacaoAvancada).addInteracao(novaInteracao);
                 })
             }
@@ -70,6 +61,10 @@ export class CarregadorDeDados {
         });    
     }
 
+    /*Função para mapear as amizades. As amizades são ponteiros em memória,
+    e o JSON deve conter apenas strings. Pensando nisso, esse método percorre o json
+    e "remapeia" esses ponteiros em memória. não é a maneira mais eficiente, obviamente,
+    mas é o que considerei mais adequado para esse tratamento de dados. -- Xama */
     public static carregarAmizades(json: any, perfis: Perfil[]): void {
         json.friendships.forEach((amizade: any) => {
             const perfil: Perfil = perfis.find((perfil) => perfil.id === amizade.userId)!;
@@ -81,6 +76,7 @@ export class CarregadorDeDados {
         })
     }
 
+    // Carrega as solicitacoes em um hashmap
     public static carregarSolicitacoes(json: any, perfis: Perfil[]): Map<Perfil, Perfil[]> {
         const solicitacoes: Map<Perfil, Perfil[]> = new Map<Perfil, Perfil[]>();
 
@@ -97,7 +93,3 @@ export class CarregadorDeDados {
         return solicitacoes;
     }
 }
-
-
-
-CarregadorDeDados.carregarDados();
