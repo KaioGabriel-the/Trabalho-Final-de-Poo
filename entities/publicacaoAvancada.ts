@@ -7,6 +7,7 @@ export default class PublicacaoAvancada extends Publicacao {
     constructor(conteudo: string, perfil: Perfil, id? :string, data?: Date) {
         super(conteudo, perfil, id, data);
     }
+    
     public get interacoes(): Interacao[] {
         return this._interacoes;
     }

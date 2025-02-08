@@ -87,8 +87,7 @@ export default class RedeSocial {
     }
 
 
-    public adicionarPublicacao(conteudo: string, perfil: Perfil): void {
-        const publicacao = new Publicacao(conteudo, perfil);
+    public adicionarPublicacao(publicacao: Publicacao): void {
         this._publicacoes.push(publicacao);
     }
 
