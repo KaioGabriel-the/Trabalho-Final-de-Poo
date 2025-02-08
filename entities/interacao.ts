@@ -4,12 +4,12 @@ import { ulid } from "ulid";
 export default class Interacao {
 
     // ID único, tipo de interação (emoji), perfil autor da interação.
-    private _id: string
-    private _tipo: TipoInteracaoEnum
-    private _perfil: Perfil
+    private _id: string;
+    private _tipo: TipoInteracaoEnum;
+    private _perfil: Perfil;
 
-    constructor(perfil: Perfil, tipo: TipoInteracaoEnum) {
-        this._id = ulid().toString();
+    constructor(perfil: Perfil, tipo: TipoInteracaoEnum, id?: string) {
+        this._id = id ? id : ulid().toString();
         this._tipo = tipo;
         this._perfil = perfil;
     }

@@ -19,8 +19,32 @@
         }
     ],
     "publications": [
-        {
-
+        {   
+            "type":"NORMAL",
+            "id": "1",
+            "content": "Eu sou uma cebola quando choro por você",
+            "timestamp": "2022-08-01T00:00:00.000Z",
+            "userId": "1"
         },
+        {
+            "type":"ADVANCED",
+            "id": "2",
+            "content": "Eu era uma cenoura quando você me dava sopa",
+            "timestamp": "2022-08-01T00:03:00.000Z",
+            "userId": "2",
+            "interactions": [
+                {
+                    "id": "33",
+                    "userId": "1",
+                    "type": "👍"
+                }
+            ]
+        }
+    ],
+    "friendRequests": [
+        {
+            "receiverId": "2",
+            "senderId": "1"
+        }
     ]
 }

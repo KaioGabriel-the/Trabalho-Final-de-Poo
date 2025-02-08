@@ -4,6 +4,8 @@ import Perfil from "../entities/perfil";
 import PerfilAvancado from "../entities/perfilAvancado";
 import Publicacao from "../entities/publicacao";
 import { cls, enter } from "../utils/utils";
+import AppError from "../exceptions/appExcecao";
+import { PublicacaoNaoEncontradaError } from "../exceptions/excecoesPublicacao";
 
 class App {
     private _input: prompt.Prompt;
@@ -20,38 +22,48 @@ class App {
         const menuOpcoes: String =
             " ----- REDE SOCIAL -----" +
             "\n" +
-            "1 - Criar Perfil;\n" +
-            "2 - Entrar em Perfil;\n" +
-            "3 - Criar Perfil Avançado;\n" +
-            "4 - Entrar em Perfil Avançado;\n" +
+            "1 - Criar Perfil\n" +
+            "2 - Entrar em Perfil\n" +
+            "3 - Criar Perfil Avançado\n" +
+            "4 - Entrar em Perfil Avançado\n" +
             "5 - Feed de Publicações;\n";
+        try {    
+            do {
+                console.log(menuOpcoes);
+                opcao = Number(this._input("Digite a opção que deseja: "));
+                cls();
+                switch (opcao) {
+                    case 1:
+                        this.criarPerfil();
+                        break;
+                    case 2:
+                        this.visualizarPerfil();
+                        break;
+                    case 3:
+                        this.criarPerfilAvancado();
+                        break;
+                    case 4:
+                        this.vizualizarPerfilAvancado();
+                        break;
+                    case 5:
+                        this.exibirFeed();
+                        break;
+                }
+            } while (opcao != 0);
 
-        do {
-            console.log(menuOpcoes);
-            opcao = Number(this._input("Digite a opção que deseja: "));
-            cls();
-            switch (opcao) {
-                case 1:
-                    this.criarPerfil();
-                    break;
-                case 2:
-                    this.vizualizarPerfil();
-                    break;
-                case 3:
-                    this.criarPerfilAvancado();
-                    break;
-                case 4:
-                    this.vizualizarPerfilAvancado();
-                    break;
-                case 5:
-                    this.exibirFeed();
-                    break;
+        } catch (error) {
+            if (error instanceof AppError) {
+                console.log("Erro! " + error.message);
             }
-        } while (opcao != 0);
+            
+            else {
+                console.log("Erro inesperado! Contate o suporte.");
+            }
+        }
     }
 
-    private menuEmoji(): String {
-        let menu: String =
+    private menuEmoji(): string {
+        let menu: string =
             "----- Menu de emojis -----\n" +
             "0 - 😁 \n1 - 😉 \n2 - 😇 \n3 - 🙃 \n4 - 😷\n";
         console.log(menu);
@@ -62,15 +74,17 @@ class App {
 
     private criarPerfil(): void {
         console.log("----- Criando Perfil ----- \n");
-        let nomeUsuario = String(
-            this._input("--> Digite o seu nome de usuario: ")
-        );
+
+        let nomeUsuario = this._input("--> Digite o seu nome de usuario: ");
+        this._redeSocial.verificarNovoCadastro(nomeUsuario);
         enter();
         cls();
-        let fotoPerfil = String(this.menuEmoji());
+
+        let fotoPerfil = this.menuEmoji();
         enter();
         cls();
-        let emailUsuario = String(this._input("--> Digite o seu email: "));
+
+        let emailUsuario = this._input("--> Digite o seu email: ");
         enter();
         cls();
         let novoPerfil: Perfil = new Perfil(
@@ -78,17 +92,19 @@ class App {
             fotoPerfil,
             emailUsuario
         );
+
         this._redeSocial.adicionarPerfil(novoPerfil);
+
         console.log("Perfil criado com sucesso 🚀🚀🚀");
         console.log(novoPerfil.toString());
+
         enter();
         cls();
     }
 
-    private vizualizarPerfil(): void {
-        const nomePerfil = String(
-            this._input("Digite o NOME do seu perfil --> ")
-        );
+    // TODO: Adicionar funcionalidade para perfil avancado 
+    private visualizarPerfil(): void {
+        const nomePerfil = this._input("Digite o NOME do seu perfil --> ");
         const usuario = this._redeSocial.buscarPerfilPorApelido(nomePerfil);
         const menu =
             `--> ${usuario.apelido} <---\n\n` +
@@ -106,14 +122,14 @@ class App {
         let opcao: Number = -1;
         do {
             console.log(menu);
-            opcao = Number(this._input("--> Qual opção deseja: "));
+            opcao = Number(this._input("--> Qual opção deseja?: "));
             cls();
             switch (opcao) {
                 case 1:
                     this.criarPublicacao(usuario);
                     break;
                 case 2:
-                    this.exibirMinhasPublicacao(usuario);
+                    this.exibirMinhasPublicacoes(usuario);
                     break;
                 case 3:
                     this.editarPublicacao(usuario);
@@ -138,9 +154,7 @@ class App {
     }
 
     private criarPublicacao(usuario: Perfil): void {
-        let textPublicacao = String(
-            this._input("--> Escrevar sua publicação: ")
-        );
+        let textPublicacao = this._input("--> Escrevar sua publicação: ");
         enter();
         cls();
         this._redeSocial.adicionarPublicacao(textPublicacao, usuario);
@@ -150,32 +164,23 @@ class App {
     }
 
     private enviarSolicitacao(emissor: Perfil): void {
-        let nomereceptor : string = this._input("Digite o nome do perfil que está procurando: ");
-        this._redeSocial.enviarSolicitacao(emissor, receptor);
+        let nomeReceptor : string = this._input("Digite o nome do perfil para solicitar amizade: ");
+        this._redeSocial.enviarSolicitacao(emissor.apelido, nomeReceptor);
+
         console.log("Solicitação enviada com sucesso!!!");
     }
 
     private recusarSolicitacao(receptor: Perfil): void {
-        let nomeEmissor = String(
-            this._input(
-                "Digite o nome do perfil que deseja aceitar a solicitação: "
-            )
-        );
-        let perfilEmissor =
-            this._redeSocial.buscarPerfilPorApelido(nomeEmissor);
-        this._redeSocial.rejeitarSolicitacao(perfilEmissor, receptor);
+        let nomeEmissor = this._input("Digite o nome do perfil que deseja aceitar a solicitação: ");
+        this._redeSocial.rejeitarSolicitacao(nomeEmissor, receptor.apelido);
+
         console.log("Solicitação recusada com sucesso...");
     }
 
     private aceitarSolocitacao(receptor: Perfil): void {
-        let nomeEmissor = String(
-            this._input(
-                "Digite o nome do perfil que deseja aceitar a solicitação: "
-            )
-        );
-        let perfilEmissor =
-            this._redeSocial.buscarPerfilPorApelido(nomeEmissor);
-        this._redeSocial.aceitarSolicitacao(perfilEmissor, receptor);
+        let nomeEmissor = this._input("Digite o nome do perfil que deseja aceitar a solicitação: ");
+        this._redeSocial.aceitarSolicitacao(nomeEmissor, receptor.apelido);
+
         console.log("Solicitação aceita com sucesso...");
     }
 
@@ -186,6 +191,7 @@ class App {
             "--> 2 - Recusar Solicitação \n" +
             "--> 3 - Enviar Solicitação";
         console.log(menu);
+
         let opcao = Number(this._input("--> Digite sua escolha: "));
         switch (opcao) {
             case 1:
@@ -199,46 +205,48 @@ class App {
                 break;
             default:
                 console.log("--> Você digitou uma opção inválida...");
+                break;
         }
     }
 
+    // TODO: Testar
     private exibirSolicitacoes(usuario: Perfil): void {
-        if (usuario) {
-            let solicitacoes = this._redeSocial.solicitacoes;
 
-            if (solicitacoes.has(usuario)) {
-                let listaSolicitacoes = solicitacoes.get(usuario);
+        let solicitacoes = this._redeSocial.solicitacoes;
 
-                if (listaSolicitacoes && listaSolicitacoes.length > 0) {
-                    console.log("--> Solicitações: ");
-                    listaSolicitacoes.forEach((perfil: Perfil) => {
-                        console.log(perfil.toString());
-                    });
-                    this.statusDaSolicitacao(usuario);
-                } else {
-                    console.log("Não há solicitações pendentes...");
-                }
+        if (this._redeSocial.existeSolicitacaoReceptor(usuario)) {
+            let listaSolicitacoes = solicitacoes.get(usuario);
+
+            if (listaSolicitacoes && listaSolicitacoes.length > 0) {
+                console.log("--> Solicitações: ");
+                listaSolicitacoes.forEach(perfil => console.log(`- ${perfil.apelido}`))
+                this.statusDaSolicitacao(usuario);
+
             } else {
-                console.log("Não solicitações para esse perfil...");
+                console.log("Não há solicitações pendentes...");
             }
         } else {
-            console.log("Perfil não encontrado...");
+            console.log("Não solicitações para esse perfil...");
         }
+
     }
 
+    // TODO: Refatorar para que a criacao de um id avancado seja no mesmo metodo que o normal
     private criarPerfilAvancado(): void {
         console.log("----- Criando Perfil ----- \n");
-        let nomeUsuario = String(
-            this._input("--> Digite o seu nome de usuario: ")
-        );
+        
+        let nomeUsuario = this._input("--> Digite o seu nome de usuario: ");
         enter();
         cls();
-        let fotoPerfil = String(this.menuEmoji());
+
+        let fotoPerfil: string = this.menuEmoji();
         enter();
         cls();
-        let emailUsuario = String(this._input("--> Digite o seu email: "));
+
+        let emailUsuario = this._input("--> Digite o seu email: ");
         enter();
         cls();
+
         let perfilAvancado = new PerfilAvancado(
             nomeUsuario,
             fotoPerfil,
@@ -250,7 +258,8 @@ class App {
         cls();
     }
 
-    private exibirMinhasPublicacao(usuario: Perfil): void {
+
+    private exibirMinhasPublicacoes(usuario: Perfil): void {
         this._redeSocial.exibirPublicacoesOrdenadas(usuario);
         enter();
         cls();
@@ -266,11 +275,10 @@ class App {
     }
 
     private editarPublicacao(usuario: Perfil): void {
-        let idPublicacao = String(
-            this._input("--> Digite o ID da publicação que deseja editar: ")
-        );
+        let idPublicacao = this._input("--> Digite o ID da publicação que deseja editar: ");
         enter();
         cls();
+
         let publicacao: Publicacao | undefined =
             this._redeSocial.publicacoes.find((publicacao) => {
                 publicacao.id === idPublicacao;
@@ -278,62 +286,44 @@ class App {
 
         try {
             if (publicacao === undefined) {
-                throw new PublicacaoNaoEncontradaErro();
+                throw new PublicacaoNaoEncontradaError();
             }
 
             console.log("--> Publicação: \n" + publicacao.conteudo + "\n");
-            let novaPublicacao = String(
-                this._input("--> Digite a nova publicação: ")
-            );
+            let novaPublicacao = this._input("--> Digite a nova publicação: ");
+
             enter();
             cls();
             publicacao.conteudo = novaPublicacao;
             console.log("Publicação alterada com sucesso...");
             enter();
             cls();
+
         } catch (erro) {
             console.error(erro);
         }
     }
 
     private adicionarAmigo(usuario: Perfil): void {
-        let idReceptor = String(
-            this._input("--> Digite o ID do amigo que deseja adicionar: ")
-        );
-        enter();
-        cls();
-        let receptor = this._redeSocial.buscarPerfilPorId(idReceptor);
-        this._redeSocial.enviarSolicitacao(usuario, receptor);
+        let apelidoReceptor = this._input("--> Digite o ID do amigo que deseja adicionar: ");
+        this._redeSocial.enviarSolicitacao(usuario.apelido, apelidoReceptor);
         console.log("Solicitação enviada com sucesso...");
         enter();
         cls();
     }
 
     private removerPublicacao(usuario: Perfil): void {
-        let idPublicacao = String(
-            this._input("--> Digite o ID da publicação que deseja remover")
+        let idPublicacao = this._input("--> Digite o ID da publicação que deseja remover");
+        let publicacao: Publicacao = this._redeSocial.buscarPublicacaoPorId(idPublicacao);
+
+        let publicacaoProcurada = this._redeSocial.publicacoes.findIndex(
+            (publicacaoProcurada) => publicacaoProcurada.id == publicacao.id
         );
+        this._redeSocial.publicacoes.splice(publicacaoProcurada, 1);
+
+        console.log("Publicação removida com sucesso...");
         enter();
         cls();
-        let publicacao: Publicacao | undefined =
-            this._redeSocial.publicacoes.find((publicacao) => {
-                publicacao.id === idPublicacao;
-            });
-
-        try {
-            if (publicacao === undefined) {
-                throw new PublicacaoNaoEncontradaErro();
-            }
-            let publicacaoProcurada = this._redeSocial.publicacoes.findIndex(
-                (publicacaoProcurada) => publicacaoProcurada.id == publicacao.id
-            );
-            this._redeSocial.publicacoes.splice(publicacaoProcurada, 1);
-            console.log("Publicação removida com sucesso...");
-            enter();
-            cls();
-        } catch (erro) {
-            console.error(erro);
-        }
     }
 
     private desativarPerfil(usuario: Perfil): void {
@@ -379,6 +369,8 @@ class App {
         }
     }
 
+    // TODO: Refatorar para que as publicações sejam exibidas de uma forma mais eficaz
+    // É ruim que o usuario tenha que digitar a cada feed que queira ver.
     private exibirFeed(): void {
         let publicacoesAux = this._redeSocial.publicacoes.sort(
             (a, b) => b.data.getTime() - a.data.getTime()
@@ -418,6 +410,7 @@ class App {
         }
     }
 
+    // TODO: Finalizar metodo
     private interacaoPublicacao(publicacao: Publicacao): void {
         console.log(
             "--> 1 - Curtir publicação; \n" + "--> 2 Não quero curtir;\n"
@@ -428,9 +421,7 @@ class App {
     }
 
     private vizualizarPerfilAvancado() {
-        const nomePerfil = String(
-            this._input("Digite o NOME do seu perfil --> ")
-        );
+        const nomePerfil = this._input("Digite o NOME do seu perfil --> ");
         let opcao = -1;
         const usuario = this._redeSocial.buscarPerfilPorApelido(nomePerfil);
 
@@ -462,7 +453,7 @@ class App {
                     this.criarPublicacao(usuario);
                     break;
                 case 2:
-                    this.exibirMinhasPublicacao(usuario);
+                    this.exibirMinhasPublicacoes(usuario);
                     break;
                 case 3:
                     this.editarPublicacao(usuario);
@@ -495,11 +486,8 @@ class App {
         if (opcao === 1) {
             this.statusPerfil(usuario);
         } else if (opcao === 2) {
-            let nomeUsuario = String(
-                this._input(
-                    "--> Digite o NOME do perfil que deseja alterar o status: "
-                )
-            );
+            let nomeUsuario =
+                this._input("--> Digite o NOME do perfil que deseja alterar o status: ");
             enter();
             cls();
             let usuarioProcurado =
@@ -508,7 +496,6 @@ class App {
         }
     }
 
-    private interagirPublicacao(): void {}
 }
 
 let app: App = new App();

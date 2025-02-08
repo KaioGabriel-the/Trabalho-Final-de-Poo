@@ -4,34 +4,10 @@ import PerfilAvancado from "./entities/perfilAvancado";
 import Publicacao from "./entities/publicacao";
 import PublicacaoAvancada from "./entities/publicacaoAvancada";
 import { SolicitacaoInvalidaError, SolicitacaoNaoEncontradaError } from "./exceptions/excecoesAmizade";
-import { PerfilNaoAutorizadoError, PerfilNaoEncontradoError } from "./exceptions/excecoesPerfil";
+import { PerfilJaCadastradoError, PerfilNaoAutorizadoError, PerfilNaoEncontradoError } from "./exceptions/excecoesPerfil";
+import { PublicacaoInvalidaError, PublicacaoNaoEncontradaError } from "./exceptions/excecoesPublicacao";
 
-/*2) Implementação da Classe RedeSocial (2,0 pontos) 
- 
-• Atributos: 
-    o Array de perfis cadastrados;  x
-    o Array de todas as publicações da rede social;  x
-    o Mapa solicitações de amizade pendentes (map<Perfil, Perfil>  x
-• Métodos: 
-o Gerenciamento de Perfis: 
-    ▪ Adicionar perfil; x
-    ▪ Buscar perfil por email, apelido ou id; x
-    ▪ Listar todos os perfis;  x
-    ▪ Ativar/desativar perfil por meio de perfil avançado. x
-o Gerenciamento de Publicações: 
-    ▪ Adicionar publicação simples ou avançada associadas a perfis;  x
-    ▪ Listar publicações ordenadas em ordem decrescente, podendo ser filtradas por 
-    perfil. ?
-o Gerenciamento de solicitacoes: 
-    ▪ Enviar solicitações de amizade; X
-    ▪ Aceitar solicitações; X
-    ▪ Recusar solicitações.  X
-o Gerenciamento de Interações: 
-    ▪ Adicionar interações a publicações avançadas, garantindo que um usuário não 
-    interaja mais de uma vez na mesma publicação.  X
-    
-    Nessa  classe,  devem  ser  passados  aos  métodos  preferencialmente  ids,  apelidos,  e-mails  ou 
-    outros atributos únicos. Daí os objetos são consultados nos arrays e a partir daí serão manipulados*/
+
 export default class RedeSocial {
     private _perfis: Perfil[] = [];
     private _publicacoes: Publicacao[] = [];
@@ -109,7 +85,16 @@ export default class RedeSocial {
         const publicacao = new Publicacao(conteudo, perfil);
         this._publicacoes.push(publicacao);
     }
-    
+
+    public buscarPublicacaoPorId(id: string): Publicacao {
+        const publicacaoEncontrada = this._publicacoes.find((publicacaoProcurada) => publicacaoProcurada.id === id);
+        
+        if (!publicacaoEncontrada) {
+            throw new PublicacaoNaoEncontradaError(`Publicação com id ${id} não encontrada.`);
+        }
+
+        return publicacaoEncontrada;
+    }
     public enviarSolicitacao(apelidoEmissor: string, apelidoReceptor: string): void {
         const emissor = this.buscarPerfilPorApelido(apelidoEmissor);
         const receptor = this.buscarPerfilPorApelido(apelidoReceptor);
@@ -121,13 +106,13 @@ export default class RedeSocial {
         this._solicitacoes.get(receptor)!.push(emissor);
     }
 
-    // Retorna true se existir uma solicitação para o receptor
-    private existeSolicitacaoReceptor(receptor: Perfil): boolean {
+    // Retorna true se existir pelo menos uma solicitação para o receptor
+    public existeSolicitacaoReceptor(receptor: Perfil): boolean {
         return this._solicitacoes.has(receptor);
     }
 
     // Retorna true se, para um receptor, o emissor ja enviou uma solicitação
-    private existeSolicitacaoEmissor(solicitacoes: Perfil[], emissor: Perfil): boolean {
+    public existeSolicitacaoEmissor(solicitacoes: Perfil[], emissor: Perfil): boolean {
         return solicitacoes.find(em => em.id === emissor.id) !== undefined;
     }
 
@@ -142,11 +127,11 @@ export default class RedeSocial {
         const emissor: Perfil = this.buscarPerfilPorApelido(apelidoEmissor);
         const receptor: Perfil = this.buscarPerfilPorApelido(apelidoReceptor);
         if (this.existeSolicitacaoReceptor(receptor) === false) {
-            throw new Error("Nenhuma solicitação encontrada para este receptor!");
+            throw new SolicitacaoNaoEncontradaError("Nenhuma solicitação encontrada para este receptor!");
         }
     
         if (!this.existeSolicitacaoEmissor(this._solicitacoes.get(receptor)!, emissor)) {
-            throw new Error("Solicitação inválida!");
+            throw new SolicitacaoInvalidaError("Solicitação inválida!");
         }
         
         emissor.adicionarAmigo(receptor);
@@ -175,7 +160,7 @@ export default class RedeSocial {
     public adicionarInteracao(publicacao: Publicacao, perfil: Perfil, interacao: Interacao): void {
 
         if (!(publicacao instanceof PublicacaoAvancada)){
-            throw new Error("Publicação inválida para adicionar interações!");
+            throw new PublicacaoInvalidaError("Publicação inválida para adicionar interações!");
         }
 
         if (this.existeInteracao(perfil, publicacao)) {
@@ -189,10 +174,16 @@ export default class RedeSocial {
         let pubs : Publicacao[] = this._publicacoes;
 
         if (perfil){
-            pubs = pubs.filter(pub => pub.perfil.id === perfil.id)
+            pubs = pubs.filter(pub => pub.perfil.id === perfil.id);
         }
         
         pubs.sort((a, b) => b.data.getTime() - a.data.getTime());
         pubs.forEach(publicacao => publicacao.exibir());
+    }
+
+    public verificarNovoCadastro(novoCadastroApelido: string): void {
+        if (this._perfis.find(perfil => perfil.apelido === novoCadastroApelido) !== undefined) {
+            throw new PerfilJaCadastradoError;
+        }
     }
 }
