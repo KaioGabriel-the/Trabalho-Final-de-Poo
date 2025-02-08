@@ -385,9 +385,9 @@ class App {
     let indice = 0;
 
     while (flag && indice < publicacoesAux.length) {
-      for (let i = 0; i < 10 && indice < publicacoesAux.length; i++) {
-        console.log(publicacoesAux[indice].exibir() + "\n");
-
+      for (let i = 0; i < 1 && indice < publicacoesAux.length; i++) {
+        publicacoesAux[indice].exibir();
+        console.log("\n");
         indice++;
       }
 
@@ -490,6 +490,10 @@ class App {
         this._redeSocial.buscarPerfilPorApelido(nomeUsuario);
       this.statusPerfil(usuarioProcurado);
     }
+  }
+
+  private interagirPublicacao():void{
+    
   }
 }
 
