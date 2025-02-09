@@ -18,5 +18,8 @@ export class PerfilNaoAutorizadoError extends AppError {
     }
 }
 
+export class PerfilInativoError extends AppError{
+}
+
 export class PerfilNaoEncontradoError extends AppError{
 }

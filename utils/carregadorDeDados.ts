@@ -26,10 +26,12 @@ export class CarregadorDeDados {
         return json.users.map((user: any) => {
             let perfil: Perfil;
 
+            const statusPerfil: boolean = user.status;
+
             if (user.type === "NORMAL") {
-                perfil = new Perfil(user.username, user.photo, user.email, user.id, user.status);
+                perfil = new Perfil(user.username, user.photo, user.email, user.id, statusPerfil);
             } else {
-                perfil = new PerfilAvancado(user.username, user.photo, user.email, user.id, user.status);
+                perfil = new PerfilAvancado(user.username, user.photo, user.email, user.id, statusPerfil);
             }
 
             return perfil;

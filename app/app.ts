@@ -20,7 +20,6 @@ class App {
         this._input = prompt();
         this._redeSocial = new RedeSocial();
         this._redeSocial.carregarPropriedades(CarregadorDeDados.carregarDados());
-        SalvadorDeDados.salvarDados(this._redeSocial);
     }
 
     public menu(): void {
@@ -32,10 +31,11 @@ class App {
             "1 - Criar Perfil\n" +
             "2 - Entrar em Perfil\n" +
             "3 - Feed de Publicações\n"+
-            "0 - Sair";
+            "0 - Sair\n";
            
         do {
             try { 
+                cls();
                 console.log(menuOpcoes);
                 opcao = Number(this._input("Digite a opção que deseja: "));
                 cls();
@@ -48,22 +48,25 @@ class App {
                         break;
                     case 3:
                         this.exibirFeed();
+                        enter();
                         break;
                 }
             } catch (error) {
                 if (error instanceof AppError) {
+                    cls()
                     console.log("Erro! " + error.message);
                     enter();
                     cls();
                 }else {
+                    cls();
                     console.log("Erro inesperado! Contate o suporte.");
                     enter();
                     cls();
                 }
             }
-        } while (opcao != 0);
+        } while (opcao !== 0 && opcao); // TODO: Ajeitar o loop
 
-        
+        SalvadorDeDados.salvarDados(this._redeSocial);
     }
 
     private menuEmoji(): string {
@@ -76,13 +79,13 @@ class App {
         return arrayEmoji[emoji];
     }
 
-    // Perfil comum e avançado são criados no mesmo método
     private criarPerfil(): void {
         console.log("----- Criando Perfil ----- \n");
         console.log("--> 0 - Perfil comum; \n--> 1 - Perfil Avançado \n");
 
         let tipoPefil = Number(this._input("Qual o tipo: "))
 
+        cls()
         let nomeUsuario = this._input("--> Digite o seu nome de usuario: ");
         this._redeSocial.verificarNovoCadastro(nomeUsuario);
         let fotoPerfil = this.menuEmoji();
@@ -91,31 +94,38 @@ class App {
         let novoPerfil = tipoPefil === 1 ? new PerfilAvancado (nomeUsuario,fotoPerfil,emailUsuario) : new Perfil (nomeUsuario,fotoPerfil,emailUsuario);
         this._redeSocial.adicionarPerfil(novoPerfil);
         
+        cls();
         console.log("Perfil criado com sucesso 🚀🚀🚀");
         console.log(novoPerfil.toString());
         enter(); 
-        cls();
     }
 
-    // TODO: Adicionar funcionalidade para perfil avancado 
     private visualizarPerfil(): void {
         const nomePerfil = this._input("Digite o NOME do seu perfil --> ");
         const usuario = this._redeSocial.buscarPerfilPorApelido(nomePerfil);
-        const menu =
-            `--> ${usuario.apelido} <---\n\n` +
-            `--> Opções: \n` +
-            `--> 1 - Criar Publicação\n` +
-            "--> 2 - Minhas Publicações\n" +
-            "--> 3 - Editar Publicação\n" +
-            "--> 4 - Remover Publicação\n" +
-            `--> 5 - Adicionar Amigo\n` +
-            "--> 6 - Amigos\n" +
-            "--> 7 - Solicitações\n" +
-            "--> 8 - Ativar/Desativar Perfil\n" +
-            "--> 0 - Voltar\n";
 
+        
         let opcao: Number = -1;
         do {
+            
+            cls();
+            const menu =
+            `==== ${usuario.apelido} ${usuario.foto} ====\n` +
+            `+ ${usuario.status ? "🟢 Ativo" : "🔴 Inativo"}\n\n` +
+            
+            "--> Opções: \n" +
+            "--> 1 - Criar Publicação\n" +
+            "--> 2 - Interagir numa publicação\n" +
+            "--> 3 - Minhas Publicações\n" +
+            "--> 4 - Editar Publicação\n" +
+            "--> 5 - Remover Publicação\n" +
+            "--> 6 - Adicionar Amigo\n" +
+            "--> 7 - Listar Amigos\n" +
+            "--> 8 - Solicitações\n" +
+            "--> 9 - Ativar/Desativar Perfil\n" +
+            "--> 0 - Voltar\n";
+
+            cls();
             console.log(menu);
             opcao = Number(this._input("--> Qual opção deseja?: "));
             cls();
@@ -124,28 +134,33 @@ class App {
                     this.criarPublicacao(usuario);
                     break;
                 case 2:
-                    this.exibirMinhasPublicacoes(usuario);
+                    this.interagirPublicacao(usuario);
                     break;
                 case 3:
-                    this.editarPublicacao(usuario);
+                    this.exibirMinhasPublicacoes(usuario);
+                    enter();
                     break;
                 case 4:
-                    this.removerPublicacao(usuario);
+                    this.editarPublicacao(usuario);
                     break;
                 case 5:
-                    this.adicionarAmigo(usuario);
+                    this.removerPublicacao(usuario);
                     break;
                 case 6:
-                    this.exibirAmigos(usuario);
+                    this.adicionarAmigo(usuario);
                     break;
                 case 7:
+                    this.exibirAmigos(usuario);
+                    break;
+                case 8:
+                    this.exibirSolicitacoes(usuario);
+                    break;
+                case 9:
                     if((usuario instanceof PerfilAvancado)){
                         this.statusPerfilAvancado(usuario);
                         break;
                     }
-                    this.exibirSolicitacoes(usuario);
-                    break;
-                case 8:
+
                     this.statusPerfil(usuario);
                     break;
             }
@@ -155,12 +170,12 @@ class App {
     private criarPublicacao(usuario: Perfil): void {
         console.log("--> 0 - Publicação Comum; \n--> 1 - Publicação Avançada; \n");
         let tipoPublicacao = Number(this._input("--> Digite qual tipo de publicação deseja fazer:"));
-        let textPublicacao = this._input("--> Escrevar sua publicação: ");
-        enter();
-        cls();
+        let textPublicacao = this._input("--> Escreva aqui o conteúdo da sua publicação: ");
         let publicacao = tipoPublicacao === 1 ? new PublicacaoAvancada(textPublicacao,usuario) : new Publicacao (textPublicacao,usuario);
         this._redeSocial.adicionarPublicacao(publicacao);
-        console.log("Publicação feita com sucesso");
+
+        cls();
+        console.log("Publicação feita com sucesso!!");
         enter();
         cls();
     }
@@ -170,13 +185,18 @@ class App {
         this._redeSocial.enviarSolicitacao(emissor.apelido, nomeReceptor);
 
         console.log("Solicitação enviada com sucesso!!!");
+        enter();
     }
 
     private recusarSolicitacao(receptor: Perfil): void {
         let nomeEmissor = this._input("Digite o nome do perfil que deseja aceitar a solicitação: ");
-        this._redeSocial.rejeitarSolicitacao(nomeEmissor, receptor.apelido);
 
-        console.log("Solicitação recusada com sucesso...");
+        if (this._input(`Você tem certeza que deseja recusar a solicitação de ${nomeEmissor}? (s/n) `).toLocaleLowerCase() == 's'){
+            this._redeSocial.rejeitarSolicitacao(nomeEmissor, receptor.apelido);
+
+            console.log("Solicitação recusada com sucesso...");
+            enter()
+        }
     }
 
     private aceitarSolocitacao(receptor: Perfil): void {
@@ -211,7 +231,6 @@ class App {
         }
     }
 
-    // TODO: Testar
     private exibirSolicitacoes(usuario: Perfil): void {
 
         let solicitacoes = this._redeSocial.solicitacoes;
@@ -222,14 +241,16 @@ class App {
             if (listaSolicitacoes && listaSolicitacoes.length > 0) {
                 console.log("--> Solicitações: ");
                 listaSolicitacoes.forEach(perfil => console.log(`- ${perfil.apelido}`))
-                this.statusDaSolicitacao(usuario);
-
+                
             } else {
                 console.log("Não há solicitações pendentes...");
             }
         } else {
-            console.log("Não solicitações para esse perfil...");
+            console.log("Não há solicitações para esse perfil...\n");
         }
+
+        console.log();
+        this.statusDaSolicitacao(usuario);
 
     }
 
@@ -243,8 +264,6 @@ class App {
         }
         
         this._redeSocial.exibirPublicacoesOrdenadas(usuario);
-        enter();
-        cls();
     }
 
     private exibirAmigos(usuario: Perfil): void {
@@ -253,7 +272,6 @@ class App {
         if (amigos.length == 0) {
             console.log("Este perfil ainda não possui amigos, mas não fique triste, que tal adicionar alguns? 😁");
             enter();
-            cls();
             return;
         }
 
@@ -261,7 +279,6 @@ class App {
             console.log(`${amigo.toString()}\n`);
         });
         enter();
-        cls();
     }
 
     private editarPublicacao(usuario: Perfil): void {
@@ -271,6 +288,7 @@ class App {
             this.visualizarPerfil();
         }
 
+        this.exibirMinhasPublicacoes(usuario);
         let idPublicacao = this._input("--> Digite o ID da publicação que deseja editar: ");
         cls();
 
@@ -284,8 +302,6 @@ class App {
             console.log("--> Publicação: \n" + publicacao.conteudo + "\n");
             let novaPublicacao = this._input("--> Digite a nova publicação: ");
 
-            enter();
-            cls();
             publicacao.conteudo = novaPublicacao;
             console.log("Publicação alterada com sucesso...");
             enter();
@@ -307,7 +323,10 @@ class App {
     }
 
     private removerPublicacao(usuario: Perfil): void {
-        let idPublicacao = this._input("--> Digite o ID da publicação que deseja remover");
+
+        this.exibirMinhasPublicacoes(usuario);
+
+        let idPublicacao = this._input("--> Digite o ID da publicação que deseja remover: ");
         let publicacao: Publicacao = this._redeSocial.buscarPublicacaoDeUmUsuarioPorId(idPublicacao, usuario);
 
         let publicacaoProcurada = this._redeSocial.publicacoes.findIndex(
@@ -315,6 +334,7 @@ class App {
         );
         this._redeSocial.publicacoes.splice(publicacaoProcurada, 1);
 
+        cls();
         console.log("Publicação removida com sucesso...");
         enter();
         cls();
@@ -322,7 +342,7 @@ class App {
 
     private desativarPerfil(usuario: Perfil): void {
         if (usuario.status) {
-            usuario.ativar();
+            usuario.desativar();
             console.log("Perfil desativado...");
             enter();
             cls();
@@ -363,6 +383,7 @@ class App {
         }
     }
 
+    // Exibe todas as publicações ordenadas da mais recente à mais antiga
     private exibirFeed(): void {
         // Ordena as publicações pela data (mais recentes primeiro)
         let publicacoesAux = this._redeSocial.publicacoes.sort(
@@ -372,32 +393,14 @@ class App {
         if (publicacoesAux.length === 0) {
             console.log("Não existem publicações...");
             enter();
-            cls();
             return;
         }
     
-        console.log("----- FEED DE PUBLICAÇÕES -----\n");
-        publicacoesAux.forEach((publicacao, index) => {
-            console.log(`(${index + 1})`);
+        console.log("----- FEED DE PUBLICAÇÕES -----");
+        publicacoesAux.forEach((publicacao) => {
             publicacao.exibir();
-            console.log("\n");
+            console.log();
         });
-    
-        // Solicita que o usuário escolha uma publicação para interagir
-        let opcaoInteracao = parseInt(this._input("Digite o número da publicação que deseja interagir (ou 0 para sair): "));
-    
-        if (isNaN(opcaoInteracao)) {
-            console.log("Entrada inválida! Por favor, insira um número.");
-        } else if (opcaoInteracao === 0) {
-            console.log("Nenhuma interação selecionada.");
-        } else if (opcaoInteracao > 0 && opcaoInteracao <= publicacoesAux.length) {
-            this.interagirPublicacao(publicacoesAux[opcaoInteracao - 1]);
-        } else {
-            console.log("Número inválido. Por favor, escolha um número entre 1 e " + publicacoesAux.length);
-        }
-    
-        enter();
-        cls();
     }
     
     private emoji(opcao: number): TipoInteracaoEnum {
@@ -415,26 +418,41 @@ class App {
         }
     }
 
-    private interagirPublicacao(publicacao: Publicacao): void {
-        if(!(publicacao instanceof PublicacaoAvancada)){
-            console.log("Essa publicação não é avançada, não tem como interagir...");
+    private interagirPublicacao(ator: Perfil): void {
+
+        this.exibirFeed();
+
+        // Solicita que o usuário escolha uma publicação para interagir
+        let opcaoInteracao: string = this._input("Digite o ID da publicação que deseja interagir (ou 0 para sair): ");
+        
+        
+        if (opcaoInteracao == "0" || !opcaoInteracao) {
             return;
         }
+        
+        const publicacao: Publicacao = this._redeSocial.buscarPublicacaoPorId(opcaoInteracao);
 
+        this._redeSocial.tratarInteracao(ator, publicacao);
+        
         let menuInteracao = "Escolha um emoji para reagir com a publicação:\n--> 1 - 👍 \n--> 2 - 👎 \n--> 3 - 😯 \n--> 4 - 😂 \n";
         console.log(menuInteracao);
-        let opcao = Number(this._input("Escolha opção: "));
+
+        let opcao = Number(this._input("Escolha sua opção: "));
         let tipoInteracao = this.emoji(opcao);
-        let perfil = this._redeSocial.buscarPerfilPorId(publicacao.perfil.id);
-        let interacao = new Interacao(perfil,tipoInteracao);
-        publicacao.addInteracao(interacao);
+        let interacao = new Interacao(ator, tipoInteracao);
+        
+        this._redeSocial.adicionarInteracao(publicacao as PublicacaoAvancada, ator, interacao);
+
         console.log("Interação feita com sucesso...");
+        enter();
     }
 
     private statusPerfilAvancado(usuario: Perfil) {
+        
         let menu = "--> 1 - Seu Perfil; \n" + "--> 2 - Outro Perfil";
+        console.log(menu);
+
         let opcao = Number(this._input("--> Digite sua opção: "));
-        enter();
         cls();
         if (opcao === 1) {
             this.statusPerfil(usuario);

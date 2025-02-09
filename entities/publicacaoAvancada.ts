@@ -18,6 +18,6 @@ export default class PublicacaoAvancada extends Publicacao {
 
     public exibir(): void {
         super.exibir();
-        console.log(`Interacoes: ${this.interacoes.length}\n`)
+        console.log(`Interacoes: ${this.interacoes.length}`);
     }
 }

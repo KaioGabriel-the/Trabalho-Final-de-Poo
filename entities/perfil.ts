@@ -13,25 +13,26 @@ o Métodos:
 ▪ Ativar/desativar perf */
 
 import { ulid } from "ulid";
+import { enter } from "../utils/utils";
 
 export default class Perfil {
     private _id: string;
     private _apelido: string;
     private _foto: string;
     private _email: string;
-    private _status: boolean;
+    private _status: boolean = false;
     private _amigos!: Perfil[];
 
-    constructor(_apelido: string, _foto: string, _email: string, id?: string, status?: boolean) {
+    constructor(_apelido: string, _foto: string, _email: string, _id?: string, _status?: boolean) {
         
-        if (id) {
-            this._id = id;  
+        if (_id) {
+            this._id = _id;  
         } else {
             this._id = ulid().toString(); 
         }
 
-        if (status) {
-            this._status = status;
+        if (_status !== undefined) {
+            this._status = _status;
         } else {
             this._status = true;
         }
@@ -60,6 +61,10 @@ export default class Perfil {
 
     public get amigos(): Perfil[] {
         return this._amigos;
+    }
+
+    public get status(): boolean {
+        return this._status;
     }
 
     public set status(status: boolean) {

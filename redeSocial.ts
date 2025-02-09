@@ -4,9 +4,8 @@ import PerfilAvancado from "./entities/perfilAvancado";
 import Publicacao from "./entities/publicacao";
 import PublicacaoAvancada from "./entities/publicacaoAvancada";
 import { SolicitacaoInvalidaError, SolicitacaoNaoEncontradaError } from "./exceptions/excecoesAmizade";
-import { PerfilJaCadastradoError, PerfilNaoAutorizadoError, PerfilNaoEncontradoError } from "./exceptions/excecoesPerfil";
-import { PublicacaoInvalidaError, PublicacaoNaoEncontradaError } from "./exceptions/excecoesPublicacao";
-
+import { PerfilInativoError, PerfilJaCadastradoError, PerfilNaoAutorizadoError, PerfilNaoEncontradoError } from "./exceptions/excecoesPerfil";
+import { PublicacaoInvalidaError, PublicacaoJaExisteInteracaoError, PublicacaoNaoEncontradaError } from "./exceptions/excecoesPublicacao";
 
 export default class RedeSocial {
     private _perfis: Perfil[] = [];
@@ -88,6 +87,9 @@ export default class RedeSocial {
 
 
     public adicionarPublicacao(publicacao: Publicacao): void {
+        if (!publicacao.perfil.status){
+            throw new PerfilInativoError("Esse perfil não pode adicionar publicações estando inativo!");
+        }
         this._publicacoes.push(publicacao);
     }
 
@@ -100,9 +102,26 @@ export default class RedeSocial {
 
         return publicacaoEncontrada;
     }
+
+    public buscarPublicacaoPorId(id: string): Publicacao {
+        const publicacaoEncontrada = this._publicacoes.find((publicacaoProcurada) => publicacaoProcurada.id === id);
+
+        if (!publicacaoEncontrada) {
+            throw new PublicacaoNaoEncontradaError(`Publicação com id ${id} não encontrada.`);
+        }
+        
+        return publicacaoEncontrada;
+    }
+
     public enviarSolicitacao(apelidoEmissor: string, apelidoReceptor: string): void {
         const emissor = this.buscarPerfilPorApelido(apelidoEmissor);
         const receptor = this.buscarPerfilPorApelido(apelidoReceptor);
+        
+        console.log(receptor.toString());
+
+        if (!emissor.status) {
+            throw new PerfilInativoError("Esse perfil está inativo não pode enviar solicitações!");	
+        }
 
         if (!this._solicitacoes.has(receptor)) {
             this._solicitacoes.set(receptor, []);
@@ -140,6 +159,7 @@ export default class RedeSocial {
         }
         
         emissor.adicionarAmigo(receptor);
+        this.removerSolicitacao(emissor, receptor);
     }
 
     public rejeitarSolicitacao(apelidoEmissor: string, apelidoReceptor: string): void {
@@ -158,20 +178,23 @@ export default class RedeSocial {
         this.removerSolicitacao(emissor, receptor);
     }
 
-    public existeInteracao(perfil: Perfil, publicacao: PublicacaoAvancada): boolean {
-        return publicacao.interacoes.find(interacao => interacao.id === perfil.id) !== undefined;
-    }
-    
-    public adicionarInteracao(publicacao: Publicacao, perfil: Perfil, interacao: Interacao): void {
+
+    public tratarInteracao(perfil: Perfil, publicacao: Publicacao): void {
 
         if (!(publicacao instanceof PublicacaoAvancada)){
             throw new PublicacaoInvalidaError("Publicação inválida para adicionar interações!");
         }
 
-        if (this.existeInteracao(perfil, publicacao)) {
-            throw new Error("Interação já existe para esse usuário!");
-        }
+        const jaExisteInteracao: boolean = publicacao.interacoes.find(interacao => interacao.perfil.id === perfil.id) !== undefined;
 
+        if (jaExisteInteracao){
+            throw new PublicacaoJaExisteInteracaoError("Interação já existe para esse usuário!");
+        }
+    }
+    
+
+
+    public adicionarInteracao(publicacao: PublicacaoAvancada, perfil: Perfil, interacao: Interacao): void {
         publicacao.addInteracao(interacao);
     }
 
@@ -183,7 +206,10 @@ export default class RedeSocial {
         }
         
         pubs.sort((a, b) => b.data.getTime() - a.data.getTime());
-        pubs.forEach(publicacao => publicacao.exibir());
+        pubs.forEach(publicacao => {
+            publicacao.exibir()
+            console.log();
+        });
     }
 
     public verificarNovoCadastro(novoCadastroApelido: string): void {

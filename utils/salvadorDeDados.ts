@@ -28,6 +28,7 @@ export default class SalvadorDeDados {
                 type: perfil instanceof PerfilAvancado ? "ADVANCED" : "NORMAL",
                 id: perfil.id,
                 username: perfil.apelido,
+                photo: perfil.foto,
                 email: perfil.email,
                 status: perfil.status
             }

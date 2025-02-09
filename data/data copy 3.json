@@ -5,32 +5,32 @@
             "id": "1",
             "username": "John Doe",
             "photo": "😭",
-            "email": "johndoe@me.com",
-            "status": true
+            "status": true,
+            "email": "johndoe@me.com"
         },
         {
             "type": "ADVANCED",
             "id": "2",
             "username": "Jane Doe",
             "photo": "😭",
-            "email": "janedoe@me.com",
-            "status": true
+            "status": true,
+            "email": "janedoe@me.com"
         },
         {
             "type": "ADVANCED",
             "id": "01JKM4BSH4R5WD4DAXDRVVGFS8",
             "username": "Rogerio",
             "photo": "😉",
-            "email": "rogerinho@rogerio",
-            "status": true
+            "status":true,
+            "email": "rogerinho@rogerio"
         },
         {
             "type": "ADVANCED",
             "id": "01JKM6JZK73P60XE1PH3P06ZWS",
             "username": "Felps",
             "photo": "😷",
-            "email": "felps@nego",
-            "status": true
+            "status":true,
+            "email": "felps@nego"
         }
     ],
     "publications": [
@@ -66,14 +66,6 @@
             "content": "Eu sou uma cebola quando choro por você",
             "timestamp": "2022-08-01T00:00:00.000Z",
             "userId": "1"
-        },
-        {
-            "type": "ADVANCED",
-            "id": "01JKMASHEBZFX8KX0WWS37YBNZ",
-            "content": "Gente o twiter caiu?",
-            "timestamp": "2025-02-09T03:07:04.523Z",
-            "userId": "01JKM6JZK73P60XE1PH3P06ZWS",
-            "interactions": []
         }
     ],
     "friendRequests": [
@@ -82,14 +74,6 @@
             "senderIds": [
                 "1"
             ]
-        },
-        {
-            "receiverId": "01JKM4BSH4R5WD4DAXDRVVGFS8",
-            "senderIds": []
-        },
-        {
-            "receiverId": "01JKM6JZK73P60XE1PH3P06ZWS",
-            "senderIds": []
         }
     ],
     "friendships": [
@@ -97,12 +81,6 @@
             "userId": "1",
             "friendIds": [
                 "2"
-            ]
-        },
-        {
-            "userId": "01JKM6JZK73P60XE1PH3P06ZWS",
-            "friendIds": [
-                "01JKM4BSH4R5WD4DAXDRVVGFS8"
             ]
         }
     ]
