@@ -3,7 +3,7 @@ import Perfil from "./entities/perfil";
 import PerfilAvancado from "./entities/perfilAvancado";
 import Publicacao from "./entities/publicacao";
 import PublicacaoAvancada from "./entities/publicacaoAvancada";
-import { SolicitacaoInvalidaError, SolicitacaoNaoEncontradaError } from "./exceptions/excecoesAmizade";
+import { AmizadeJaExisteError, SolicitacaoInvalidaError, SolicitacaoJaExisteError, SolicitacaoNaoEncontradaError } from "./exceptions/excecoesAmizade";
 import { PerfilInativoError, PerfilJaCadastradoError, PerfilNaoAutorizadoError, PerfilNaoEncontradoError } from "./exceptions/excecoesPerfil";
 import { PublicacaoInvalidaError, PublicacaoJaExisteInteracaoError, PublicacaoNaoEncontradaError } from "./exceptions/excecoesPublicacao";
 
@@ -123,8 +123,16 @@ export default class RedeSocial {
             throw new PerfilInativoError("Esse perfil está inativo não pode enviar solicitações!");	
         }
 
+        if (emissor.amigos.includes(receptor)) {
+            throw new AmizadeJaExisteError("Amizade ja existente!");
+        }
+
         if (!this._solicitacoes.has(receptor)) {
             this._solicitacoes.set(receptor, []);
+        }
+        
+        if (this.solicitacoes.get(receptor)!.includes(emissor)) {
+            throw new SolicitacaoJaExisteError("Solicitação ja enviada!");
         }
 
         this._solicitacoes.get(receptor)!.push(emissor);
@@ -183,6 +191,10 @@ export default class RedeSocial {
 
         if (!(publicacao instanceof PublicacaoAvancada)){
             throw new PublicacaoInvalidaError("Publicação inválida para adicionar interações!");
+        }
+
+        if (!perfil.status){
+            throw new PerfilInativoError("Esse perfil não pode interagir em uma publicação estando inativo!");
         }
 
         const jaExisteInteracao: boolean = publicacao.interacoes.find(interacao => interacao.perfil.id === perfil.id) !== undefined;

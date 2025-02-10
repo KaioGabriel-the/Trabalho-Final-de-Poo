@@ -11,6 +11,7 @@ import PublicacaoAvancada from "../entities/publicacaoAvancada";
 import Interacao from "../entities/interacao";
 import { TipoInteracaoEnum } from "../enums/tipoInteracaoEnum";
 import SalvadorDeDados from "../utils/salvadorDeDados";
+import { ValorInvalidoError } from "../exceptions/excecoesEntrada";
 
 class App {
     private _input: prompt.Prompt;
@@ -37,9 +38,19 @@ class App {
             try { 
                 cls();
                 console.log(menuOpcoes);
-                opcao = Number(this._input("Digite a opção que deseja: "));
+
+                const input = this._input("Digite a opção que deseja: ").trim();
+                if (!input){
+                    throw new ValorInvalidoError("Entrada vazia!");   
+                }
+
+                opcao = Number(input);
+                // opcao = Number(this._input("Digite a opção que deseja: ").trim());
+
                 cls();
                 switch (opcao) {
+                    case 0:
+                        break;
                     case 1:
                         this.criarPerfil();
                         break;
@@ -50,6 +61,8 @@ class App {
                         this.exibirFeed();
                         enter();
                         break;
+                    default:
+                        throw new ValorInvalidoError("Opção inválida!");
                 }
             } catch (error) {
                 if (error instanceof AppError) {
@@ -119,10 +132,9 @@ class App {
             "--> 3 - Minhas Publicações\n" +
             "--> 4 - Editar Publicação\n" +
             "--> 5 - Remover Publicação\n" +
-            "--> 6 - Adicionar Amigo\n" +
-            "--> 7 - Listar Amigos\n" +
-            "--> 8 - Solicitações\n" +
-            "--> 9 - Ativar/Desativar Perfil\n" +
+            "--> 6 - Listar Amigos\n" +
+            "--> 7 - Solicitações\n" +
+            "--> 8 - Ativar/Desativar Perfil\n" +
             "--> 0 - Voltar\n";
 
             cls();
@@ -147,15 +159,12 @@ class App {
                     this.removerPublicacao(usuario);
                     break;
                 case 6:
-                    this.adicionarAmigo(usuario);
-                    break;
-                case 7:
                     this.exibirAmigos(usuario);
                     break;
-                case 8:
+                case 7:
                     this.exibirSolicitacoes(usuario);
                     break;
-                case 9:
+                case 8:
                     if((usuario instanceof PerfilAvancado)){
                         this.statusPerfilAvancado(usuario);
                         break;
@@ -163,6 +172,8 @@ class App {
 
                     this.statusPerfil(usuario);
                     break;
+                default:
+                    throw new ValorInvalidoError("Opção inválida!!");
             }
         } while (opcao != 0);
     }
